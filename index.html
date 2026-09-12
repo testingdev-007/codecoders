@@ -3,120 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feature Sprint: Solo & 2-Player Dev Battler</title>
+<title>Execution Stack: Arena View Edition</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
   :root {
-    --bg: #090d16;
-    --panel: #131b2e;
-    --card-bg: #1e293b;
+    --bg: #060911;
+    --panel: #0d1527;
+    --card-bg: #151f38;
     --p1: #38bdf8;
     --ai: #f43f5e;
     --gold: #f59e0b;
     --success: #10b981;
-    --border: #334155;
+    --border: #233252;
   }
-  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; }
   body {
     margin: 0;
-    padding: 16px;
+    padding: 10px 16px;
     background: var(--bg);
     color: #f1f5f9;
     user-select: none;
-    min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  /* Animations */
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-6px); }
-    40%, 80% { transform: translateX(6px); }
-  }
-  @keyframes punch {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.06); filter: drop-shadow(0 0 16px var(--success)); }
-    100% { transform: scale(1); }
-  }
-  .shake-effect { animation: shake 0.3s ease-in-out; }
-  .punch-effect { animation: punch 0.35s ease-out; }
-
+  /* PERSISTENT HEADER & SCORE TRACK */
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #0f172a;
-    padding: 12px 20px;
+    background: #090f1d;
+    padding: 10px 18px;
     border-radius: 12px;
     border: 1px solid var(--border);
-    flex-wrap: wrap;
     gap: 12px;
   }
-  .controls-group {
+  .sprint-track {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex-grow: 1;
+    max-width: 380px;
   }
-  .toggle-btn {
+  .progress-bar-bg {
     background: #1e293b;
-    border: 1px solid var(--border);
-    color: #94a3b8;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 600;
+    border-radius: 999px;
+    height: 12px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #334155;
   }
-  .toggle-btn.active {
-    background: #334155;
+  .progress-fill-p1 {
+    position: absolute;
+    top: 0; left: 0; height: 100%;
+    background: var(--p1);
+    transition: width 0.3s ease;
+  }
+  .progress-fill-ai {
+    position: absolute;
+    top: 0; right: 0; height: 100%;
+    background: var(--ai);
+    transition: width 0.3s ease;
+  }
+
+  .camera-bar {
+    display: flex;
+    gap: 6px;
+    background: #060a14;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .cam-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .cam-btn.active {
+    background: #1e293b;
     color: #38bdf8;
     border-color: #38bdf8;
   }
-  .scoreboard { display: flex; gap: 14px; }
-  .player-box {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    background: var(--panel);
-  }
-  .player-box.active {
-    border-color: #fff;
-    box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
-  }
-  .p1-color { color: var(--p1); }
-  .ai-color { color: var(--ai); }
 
-  .layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 16px;
+  /* VIEWPORT & ARENA SURFACES */
+  .viewport {
+    height: calc(100vh - 85px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    perspective: 1200px;
+    position: relative;
+    padding: 8px 0;
   }
-  .board-section {
+  .arena-surface {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
+  }
+
+  /* Camera Modes */
+  .view-arena .arena-surface { transform: scale(0.96); }
+  .view-player .arena-surface { transform: translateY(-24%) scale(1.04); }
+  .view-ai .arena-surface { transform: translateY(22%) scale(1.04); }
+
+  /* ARENA TIERS */
+  .zone {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 16px;
+    padding: 12px 16px;
   }
-  .section-header {
+  .zone-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
   }
-  .section-title { font-weight: 700; font-size: 0.95rem; }
-  .card-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .zone-ai { border-color: rgba(244, 63, 94, 0.4); background: linear-gradient(180deg, #180d19, #0d1527); }
+  .zone-commons { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; background: #080d1a; }
+  .zone-player { border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(0deg, #09172e, #0d1527); }
 
-  /* Card Component */
+  .card-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* CARDS */
   .card {
     background: var(--card-bg);
     border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 10px;
-    width: 155px;
-    min-height: 195px;
+    border-radius: 8px;
+    padding: 8px;
+    width: 145px;
+    min-height: 180px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -125,163 +151,257 @@
   }
   .card:hover { transform: translateY(-4px); }
   
-  /* Graphic Mode Visual Container */
   .card-art {
     width: 100%;
-    height: 85px;
+    height: 65px;
     background: #090d16;
-    border-radius: 6px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 1.6rem;
     overflow: hidden;
   }
   .card-art img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* Text Mode Specific Styling */
-  .mode-text .card-art { display: none !important; }
-  .mode-text .card {
-    min-height: 160px;
-    background: #111827;
-    border-width: 2px;
-  }
-  .text-type-tag {
-    display: none;
-    font-size: 0.65rem;
-    letter-spacing: 0.05em;
+  /* FACE DOWN AI CARD */
+  .card-back {
+    background: repeating-linear-gradient(45deg, #1f1224, #1f1224 8px, #2e1022 8px, #2e1022 16px);
+    border: 2px solid #f43f5e;
+    border-radius: 8px;
+    width: 105px;
+    height: 145px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #fca5a5;
     font-weight: 800;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-    color: #94a3b8;
+    font-size: 0.7rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   }
-  .mode-text .text-type-tag { display: block; }
-  
-  /* Tiers & Types */
-  .tier-gig { border-color: #38bdf8; }
-  .tier-contract { border-color: var(--gold); }
-  .tier-crisis { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.25); }
-  .card-worker { border-color: #60a5fa; }
-  .card-construct { border-color: #c084fc; }
 
-  .card-title { font-weight: 700; font-size: 0.85rem; margin-top: 4px; line-height: 1.2; }
-  .card-desc { font-size: 0.72rem; color: #94a3b8; line-height: 1.35; margin: 4px 0; }
-  .card-stat { font-weight: 700; font-size: 0.8rem; }
+  .card-title { font-weight: 700; font-size: 0.78rem; margin-top: 2px; line-height: 1.2; }
+  .card-stat { font-weight: 700; font-size: 0.75rem; margin-top: 2px; }
 
-  /* Workbench Slots */
+  /* AI Glow Reticle */
+  .ai-target-glow {
+    border-color: var(--ai) !important;
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.9) !important;
+    transform: scale(1.05) translateY(-6px);
+    z-index: 50;
+  }
+
+  /* Odds Badges */
+  .odds-badge {
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 2px 4px;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 2px;
+  }
+  .odds-guaranteed { background: #064e3b; color: #34d399; }
+  .odds-good { background: #14532d; color: #86efac; }
+  .odds-risky { background: #78350f; color: #fde047; }
+  .odds-low { background: #7f1d1d; color: #fca5a5; }
+
+  /* Squad Slots */
   .squad-slot {
-    background: #090d16;
-    border: 2px dashed #475569;
-    border-radius: 10px;
-    padding: 10px;
-    width: 155px;
+    background: #090e1a;
+    border: 2px dashed #334155;
+    border-radius: 8px;
+    padding: 8px;
+    width: 145px;
     min-height: 140px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
   .attached-mod {
-    background: #4c1d95;
+    background: #2e1042;
     border: 1px solid #c084fc;
     border-radius: 4px;
-    padding: 4px 6px;
-    font-size: 0.72rem;
+    padding: 2px 5px;
+    font-size: 0.65rem;
+  }
+
+  /* SPEECH BUBBLE */
+  .ai-bubble {
+    background: #2b0f1a;
+    border: 1px solid var(--ai);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    color: #fecdd3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .btn {
     background: #2563eb;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 7px 14px;
     font-weight: 700;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 0.8rem;
   }
   .btn:hover { opacity: 0.9; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-end { background: #38bdf8; color: #000; font-weight: 800; }
+  .btn-next { background: var(--ai); color: #fff; font-weight: 800; }
 
-  .log-panel {
-    grid-column: span 2;
+  .log-dock {
     background: #040711;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    height: 95px;
+    border-radius: 8px;
+    padding: 8px 12px;
+    height: 65px;
     overflow-y: auto;
-    font-size: 0.85rem;
-    line-height: 1.45;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    margin-top: 8px;
   }
-  .badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    background: #1e293b;
-    color: #94a3b8;
+
+  .tier-gig { border-color: #38bdf8; }
+  .tier-contract { border-color: var(--gold); }
+  .tier-crisis { border-color: #ef4444; }
+  .card-worker { border-color: #60a5fa; }
+  .card-construct { border-color: #c084fc; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
   }
+  @keyframes punch {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 16px var(--success)); }
+    100% { transform: scale(1); }
+  }
+  .shake-effect { animation: shake 0.3s ease; }
+  .punch-effect { animation: punch 0.35s ease; }
 </style>
 </head>
-<body class="mode-graphic">
+<body>
 
 <header>
-  <div style="display:flex; align-items:center; gap:16px;">
-    <strong>FEATURE SPRINT</strong>
-    <div class="controls-group">
-      <button id="btn-mode-graphic" class="toggle-btn active" onclick="setRenderMode('graphic')">🎨 Graphic Mode</button>
-      <button id="btn-mode-text" class="toggle-btn" onclick="setRenderMode('text')">📄 Text Mode</button>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <strong style="font-size:0.95rem;">FEATURE SPRINT: ARENA</strong>
+    <!-- CAMERA FOCUS LENSES -->
+    <div class="camera-bar">
+      <button id="cam-arena" class="cam-btn active" onclick="setCamera('arena')">🏟️ Arena</button>
+      <button id="cam-player" class="cam-btn" onclick="setCamera('player')">💻 My Terminal</button>
+      <button id="cam-ai" class="cam-btn" onclick="setCamera('ai')">🕵️ Inspect Rival</button>
     </div>
   </div>
 
-  <div class="scoreboard">
-    <div id="p0-box" class="player-box active p1-color">
-      <strong>Founder (You)</strong>
-      <span>⚡ <span id="p0-energy">3</span></span>
-      <span>⭐ <span id="p0-score">0</span> / 10</span>
+  <!-- CENTER STAR TRACK -->
+  <div class="sprint-track">
+    <span style="font-size:0.75rem; color:var(--p1); font-weight:800;">YOU: <span id="p0-score-badge">0</span></span>
+    <div class="progress-bar-bg">
+      <div id="track-p0" class="progress-fill-p1" style="width: 0%;"></div>
+      <div id="track-ai" class="progress-fill-ai" style="width: 0%;"></div>
     </div>
-    <div id="p1-box" class="player-box ai-color">
-      <strong>Rival AI</strong>
-      <span>⚡ <span id="p1-energy">3</span></span>
-      <span>⭐ <span id="p1-score">0</span> / 10</span>
-    </div>
+    <span style="font-size:0.75rem; color:var(--ai); font-weight:800;">AI: <span id="ai-score-badge">0</span></span>
   </div>
 
-  <button id="end-turn-btn" class="btn" onclick="endTurn()">End Turn</button>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div style="font-size:0.8rem;">
+      <span style="color:var(--p1);">⚡ <strong id="p0-energy">3</strong> Energy</span>
+    </div>
+    <button id="end-turn-btn" class="btn btn-end" onclick="endTurn()">Done: End Turn</button>
+  </div>
 </header>
 
-<div class="layout" id="board-layout">
-  <!-- Contracts -->
-  <div class="board-section">
-    <div class="section-header">
-      <span class="section-title">Client Contracts & Crises</span>
-      <span class="badge">Click to Deliver</span>
-    </div>
-    <div class="card-row" id="jobs-container"></div>
-  </div>
+<div class="viewport view-arena" id="viewport-container">
+  <div class="arena-surface" id="arena-surface">
 
-  <!-- Store -->
-  <div class="board-section">
-    <div class="section-header">
-      <span class="section-title">Talent Pool & Constructs</span>
-      <span class="badge">Click to Buy</span>
+    <!-- 1. TOP TIER: RIVAL AI DOMAIN -->
+    <div class="zone zone-ai">
+      <div class="zone-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="color:var(--ai);">🤖 RIVAL AI HEADQUARTERS</span>
+          <span style="font-size:0.75rem; color:#94a3b8;">Power: <strong id="ai-total-power">1</strong> | ⚡ <span id="ai-energy">3</span> Energy</span>
+        </div>
+        <div class="ai-bubble" id="ai-speech" style="display:none;">
+          <span id="ai-text">Analyzing backlog...</span>
+          <button class="btn btn-next" id="ai-next-btn" onclick="advanceAIStep()">Next ➔</button>
+        </div>
+      </div>
+      
+      <div style="display:flex; gap:16px;">
+        <!-- AI Face-Down Private Hand -->
+        <div>
+          <div style="font-size:0.7rem; color:#fca5a5; margin-bottom:4px; font-weight:700;">AI HAND (PRIVATE)</div>
+          <div style="display:flex; gap:6px;" id="ai-hand-container">
+            <div class="card-back"><span>ENCRYPTED</span><span>CARD</span></div>
+            <div class="card-back"><span>ENCRYPTED</span><span>CARD</span></div>
+          </div>
+        </div>
+        <!-- AI Public Deployed Squad -->
+        <div style="flex-grow:1;">
+          <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px; font-weight:700;">ACTIVE DEPLOYED PIPELINE</div>
+          <div class="card-row" id="ai-bench-container"></div>
+        </div>
+      </div>
     </div>
-    <div class="card-row" id="store-container"></div>
-  </div>
 
-  <!-- Workbench -->
-  <div class="board-section" style="grid-column: span 2;">
-    <div class="section-header">
-      <span class="section-title" id="workbench-label">Your Active Dev Squad</span>
-      <span class="badge">Constructs attach to workers</span>
+    <!-- 2. MIDDLE TIER: THE SPRINT COMMONS (MARKET & CONTRACTS) -->
+    <div class="zone zone-commons">
+      <!-- Client Contracts -->
+      <div>
+        <div class="zone-header">
+          <span style="color:var(--gold);">CLIENT CONTRACT BACKLOG</span>
+          <span style="font-size:0.7rem; color:#64748b;">Click to Deliver (0 ⚡)</span>
+        </div>
+        <div class="card-row" id="jobs-container"></div>
+      </div>
+      
+      <!-- Open Talent & Upgrade Market -->
+      <div>
+        <div class="zone-header">
+          <span style="color:#60a5fa;">TALENT & ARCHITECTURE SHOP</span>
+          <span style="font-size:0.7rem; color:#64748b;">Buy with ⚡ Energy</span>
+        </div>
+        <div class="card-row" id="store-container"></div>
+      </div>
     </div>
-    <div class="card-row" id="workbench-container"></div>
-  </div>
 
-  <!-- Output Log -->
-  <div class="log-panel" id="game-log"></div>
+    <!-- 3. BOTTOM TIER: YOUR AGENCY (BENCH + HAND) -->
+    <div class="zone zone-player">
+      <div class="zone-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="color:var(--p1);">💻 YOUR AGENCY TERMINAL</span>
+          <span style="font-size:0.75rem; color:#94a3b8;">Total Stack Power: <strong id="player-total-power">1</strong></span>
+        </div>
+        <span style="font-size:0.72rem; color:#38bdf8;">Your Turn: Buy in Shop or Click Contract to Ship</span>
+      </div>
+
+      <div style="display:flex; gap:16px;">
+        <!-- Player Active Squad -->
+        <div style="flex-grow:1;">
+          <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px; font-weight:700;">YOUR ACTIVE STACK</div>
+          <div class="card-row" id="player-bench-container"></div>
+        </div>
+        <!-- Player Action Hand Tray -->
+        <div>
+          <div style="font-size:0.7rem; color:#38bdf8; margin-bottom:4px; font-weight:700;">YOUR DOCKED HAND</div>
+          <div class="card-row" id="player-hand-container"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<div class="log-dock" id="game-log"></div>
 
 <script>
 /* ==========================================================================
-   1. AUDIO ENGINE (Web Audio API)
+   1. AUDIO ENGINE
    ========================================================================== */
 const AudioEngine = {
   ctx: null,
@@ -296,9 +416,9 @@ const AudioEngine = {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = "sine";
-    osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(130, this.ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.05);
     osc.connect(gain);
     gain.connect(this.ctx.destination);
@@ -307,7 +427,7 @@ const AudioEngine = {
   },
   playSuccess() {
     this.init();
-    const notes = [440, 554.37, 659.25];
+    const notes = [440, 554.37, 659.25, 880];
     notes.forEach((freq, idx) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -325,87 +445,94 @@ const AudioEngine = {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(130, this.ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(75, this.ctx.currentTime + 0.18);
+    osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(70, this.ctx.currentTime + 0.2);
     gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.18);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
     osc.connect(gain);
     gain.connect(this.ctx.destination);
     osc.start();
-    osc.stop(this.ctx.currentTime + 0.18);
+    osc.stop(this.ctx.currentTime + 0.2);
   }
 };
 
 /* ==========================================================================
-   2. COMPLETE 24-CARD DATABASE
+   2. CARDS DATABASE
    ========================================================================== */
 const ASSETS_PATH = "./assets/cards/";
 
 const JOBS_DB = [
-  { tier: "tier-gig", typeLabel: "Quick Gig", emoji: "🎨", img: "logo_gig.webp", name: "Logo Redesign", diff: 3, reward: 1, desc: "Client asks for 'more pop'." },
-  { tier: "tier-gig", typeLabel: "Quick Gig", emoji: "🧁", img: "bake_sale.webp", name: "Bake-Sale Site", diff: 4, reward: 1, desc: "Simple community storefront." },
-  { tier: "tier-gig", typeLabel: "Quick Gig", emoji: "🔗", img: "broken_link.webp", name: "Broken Link Hotfix", diff: 4, reward: 1, desc: "Fix an ugly redirect error." },
-  { tier: "tier-gig", typeLabel: "Quick Gig", emoji: "🌓", img: "dark_mode.webp", name: "Dark Mode Toggle", diff: 5, reward: 2, desc: "High demand styling sprint." },
-  { tier: "tier-contract", typeLabel: "Urgent Contract", emoji: "🛍️", img: "black_friday.webp", name: "Black Friday Spike", diff: 6, reward: 2, desc: "Traffic surge melting checkout." },
-  { tier: "tier-contract", typeLabel: "Urgent Contract", emoji: "🍞", img: "smart_toaster.webp", name: "AI Smart-Toaster", diff: 7, reward: 3, desc: "Venture-backed promises to fulfill." },
-  { tier: "tier-contract", typeLabel: "Urgent Contract", emoji: "📺", img: "viral_spike.webp", name: "Viral Video Spike", diff: 7, reward: 3, desc: "Millions hitting play at once." },
-  { tier: "tier-contract", typeLabel: "Urgent Contract", emoji: "💳", img: "payment_outage.webp", name: "Payment Outage", diff: 8, reward: 4, desc: "Global terminal timeout." },
-  { tier: "tier-crisis", typeLabel: "Crisis Job", emoji: "🏛️", img: "legacy_bank.webp", name: "1980s Banking Core", diff: 9, reward: 5, desc: "Ancient mainframe tape reels." },
-  { tier: "tier-crisis", typeLabel: "Crisis Job", emoji: "🛰️", img: "satellite_glitch.webp", name: "Satellite Glitch", diff: 10, reward: 6, desc: "Orbital systems drifting offline." }
+  { id: "logo", tier: "tier-gig", syntax: "render()", emoji: "🎨", img: "logo_gig.webp", name: "CSS Refactor", diff: 3, reward: 1 },
+  { id: "bake", tier: "tier-gig", syntax: "POST /order", emoji: "🧁", img: "bake_sale.webp", name: "Storefront Endpoint", diff: 4, reward: 1 },
+  { id: "link", tier: "tier-gig", syntax: "301 Redirect", emoji: "🔗", img: "broken_link.webp", name: "Broken Route Hotfix", diff: 4, reward: 1 },
+  { id: "dark", tier: "tier-gig", syntax: "toggleTheme()", emoji: "🌓", img: "dark_mode.webp", name: "Client State Toggle", diff: 5, reward: 2 },
+  { id: "rush", tier: "tier-contract", syntax: "queue.throttle()", emoji: "🛍️", img: "black_friday.webp", name: "Traffic Spike Load", diff: 6, reward: 2 },
+  { id: "toast", tier: "tier-contract", syntax: "neuralNet.fit()", emoji: "🍞", img: "smart_toaster.webp", name: "Model Fine-Tuning", diff: 7, reward: 3 },
+  { id: "viral", tier: "tier-contract", syntax: "CDN.cacheHit()", emoji: "📺", img: "viral_spike.webp", name: "Streaming Spike", diff: 7, reward: 3 },
+  { id: "bank", tier: "tier-crisis", syntax: "COBOL.parse()", emoji: "🏛️", img: "legacy_bank.webp", name: "Legacy Core Migration", diff: 9, reward: 5 }
 ];
 
 const SHOP_DB = [
-  // Workers
-  { type: "WORKER", typeLabel: "Talent", emoji: "☕", img: "intern.webp", name: "Intern", cost: 1, power: 1, desc: "Eager extra hands." },
-  { type: "WORKER", typeLabel: "Talent", emoji: "🦉", img: "night_owl.webp", name: "Night-Owl Hacker", cost: 2, power: 2, desc: "Steady under heavy pressure." },
-  { type: "WORKER", typeLabel: "Talent", emoji: "💻", img: "coder.webp", name: "Full-Stack Dev", cost: 2, power: 2, desc: "Reliable general builder." },
-  { type: "WORKER", typeLabel: "Talent", emoji: "🔍", img: "reviewer.webp", name: "Code Reviewer", cost: 2, power: 1, bonusLuck: 1, desc: "Passive: +1 to all Spark Rolls." },
-  { type: "WORKER", typeLabel: "Talent", emoji: "🧙", img: "devops.webp", name: "DevOps Wizard", cost: 3, power: 3, desc: "Master of automated pipelines." },
-  { type: "WORKER", typeLabel: "Talent", emoji: "🚀", img: "lead.webp", name: "Lead Architect", cost: 3, power: 4, desc: "Heavy firepower for big jobs." },
-  { type: "WORKER", typeLabel: "Talent", emoji: "🎸", img: "rockstar.webp", name: "10x Rockstar Dev", cost: 4, power: 6, desc: "Massive solo execution." },
-
-  // Constructs
-  { type: "CONSTRUCT", typeLabel: "Construct", emoji: "🔁", img: "loop.webp", name: "Repeat Loop", cost: 2, effect: "DOUBLE", desc: "Doubles a worker's power." },
-  { type: "CONSTRUCT", typeLabel: "Construct", emoji: "🦺", img: "safety.webp", name: "Safety Net", cost: 1, effect: "SHIELD", desc: "Prevents energy loss on failed jobs." },
-  { type: "CONSTRUCT", typeLabel: "Construct", emoji: "🔋", img: "battery.webp", name: "Battery Pack", cost: 1, effect: "BATTERY", desc: "Carries 1 unused energy into next turn." },
-  { type: "CONSTRUCT", typeLabel: "Construct", emoji: "🔥", img: "overclock.webp", name: "Turbo Overclock", cost: 2, effect: "PLUS_THREE", desc: "Grants +3 Power to attached worker." },
-  { type: "CONSTRUCT", typeLabel: "Construct", emoji: "☁️", img: "cloud.webp", name: "Cloud Server", cost: 3, effect: "ENERGY_BOOST", desc: "Passive: +1 Base Energy every turn." }
+  { id: "intern", type: "WORKER", syntax: "helperFunc()", emoji: "☕", img: "intern.webp", name: "Intern", cost: 1, power: 1 },
+  { id: "dev", type: "WORKER", syntax: "function worker()", emoji: "💻", img: "coder.webp", name: "Full-Stack Dev", cost: 2, power: 2 },
+  { id: "reviewer", type: "WORKER", syntax: "assert(valid)", emoji: "🔍", img: "reviewer.webp", name: "Code Reviewer", cost: 2, power: 1, bonusLuck: 1 },
+  { id: "lead", type: "WORKER", syntax: "System.kernel()", emoji: "🚀", img: "lead.webp", name: "Lead Architect", cost: 3, power: 4 },
+  { id: "loop", type: "CONSTRUCT", syntax: "for (i < 2)", emoji: "🔁", img: "loop.webp", name: "Repeat Loop", cost: 2, effect: "DOUBLE" },
+  { id: "safety", type: "CONSTRUCT", syntax: "try { ... }", emoji: "🦺", img: "safety.webp", name: "Safety Net", cost: 1, effect: "SHIELD" },
+  { id: "battery", type: "CONSTRUCT", syntax: "Cache.save()", emoji: "🔋", img: "battery.webp", name: "Battery Pack", cost: 1, effect: "BATTERY" }
 ];
 
 /* ==========================================================================
-   3. STATE & MODE SWITCHING
+   3. GAME ENGINE & ARENA STATE
    ========================================================================== */
-let renderMode = "graphic"; // 'graphic' or 'text'
-
 const state = {
   active: 0,
   players: [
-    { score: 0, energy: 3, extraBaseEnergy: 0, bench: [{ name: "Intern", power: 1, emoji: "☕", bonusLuck: 0, construct: null }], battery: 0 },
-    { score: 0, energy: 3, extraBaseEnergy: 0, bench: [{ name: "Intern", power: 1, emoji: "☕", bonusLuck: 0, construct: null }], battery: 0 }
+    { score: 0, energy: 3, bench: [{ name: "Intern", syntax: "helperFunc()", power: 1, emoji: "☕", bonusLuck: 0, construct: null }], hand: [], battery: 0 },
+    { score: 0, energy: 3, bench: [{ name: "Intern", syntax: "helperFunc()", power: 1, emoji: "☕", bonusLuck: 0, construct: null }], hand: [{ name: "Full-Stack Dev" }, { name: "Repeat Loop" }], battery: 0 }
   ],
   jobs: [],
   store: [],
-  isAITurn: false
+  isAITurn: false,
+  targetedCardId: null
 };
-
-function setRenderMode(mode) {
-  renderMode = mode;
-  document.body.className = mode === 'graphic' ? 'mode-graphic' : 'mode-text';
-  document.getElementById('btn-mode-graphic').className = mode === 'graphic' ? 'toggle-btn active' : 'toggle-btn';
-  document.getElementById('btn-mode-text').className = mode === 'text' ? 'toggle-btn active' : 'toggle-btn';
-  render();
-}
 
 function log(msg) {
   const l = document.getElementById("game-log");
   l.innerHTML = `<div>> ${msg}</div>` + l.innerHTML;
 }
 
-function init() {
-  state.jobs = [JOBS_DB[0], JOBS_DB[1], JOBS_DB[2]];
-  state.store = [SHOP_DB[0], SHOP_DB[1], SHOP_DB[7], SHOP_DB[8]];
-  log("Game ready. Switch between Graphic and Text Mode anytime at top left.");
-  render();
+function setCamera(mode) {
+  const vp = document.getElementById("viewport-container");
+  vp.className = `viewport view-${mode}`;
+  document.getElementById("cam-arena").className = `cam-btn ${mode === 'arena' ? 'active' : ''}`;
+  document.getElementById("cam-player").className = `cam-btn ${mode === 'player' ? 'active' : ''}`;
+  document.getElementById("cam-ai").className = `cam-btn ${mode === 'ai' ? 'active' : ''}`;
+}
+
+function calculateTeamPower(playerIdx) {
+  const p = state.players[playerIdx];
+  let power = 0;
+  let bonusLuck = 0;
+  p.bench.forEach(w => {
+    let pw = w.power;
+    if (w.bonusLuck) bonusLuck += w.bonusLuck;
+    if (w.construct) {
+      if (w.construct.effect === "DOUBLE") pw *= 2;
+      if (w.construct.effect === "PLUS_THREE") pw += 3;
+    }
+    power += pw;
+  });
+  return { power, bonusLuck };
+}
+
+function getOdds(diff) {
+  const { power, bonusLuck } = calculateTeamPower(0);
+  const min = power + 1 + bonusLuck;
+  if (min >= diff) return { label: "100%", class: "odds-guaranteed" };
+  if (power + 2 + bonusLuck >= diff) return { label: "75%", class: "odds-good" };
+  if (power + 3 + bonusLuck >= diff) return { label: "50%", class: "odds-risky" };
+  return { label: "<25%", class: "odds-low" };
 }
 
 function renderArt(item) {
@@ -421,257 +548,275 @@ function render() {
   const p0 = state.players[0];
   const p1 = state.players[1];
 
-  document.getElementById("p0-score").innerText = p0.score;
-  document.getElementById("p0-energy").innerText = p0.energy;
-  document.getElementById("p1-score").innerText = p1.score;
-  document.getElementById("p1-energy").innerText = p1.energy;
+  // Header & Track
+  document.getElementById("p0-score-badge").innerText = p0.score;
+  document.getElementById("ai-score-badge").innerText = p1.score;
+  document.getElementById("track-p0").style.width = `${Math.min(100, (p0.score / 10) * 100)}%`;
+  document.getElementById("track-ai").style.width = `${Math.min(100, (p1.score / 10) * 100)}%`;
 
-  document.getElementById("p0-box").className = "player-box p1-color " + (state.active === 0 ? "active" : "");
-  document.getElementById("p1-box").className = "player-box ai-color " + (state.active === 1 ? "active" : "");
+  document.getElementById("p0-energy").innerText = p0.energy;
+  document.getElementById("ai-energy").innerText = p1.energy;
+  document.getElementById("player-total-power").innerText = calculateTeamPower(0).power;
+  document.getElementById("ai-total-power").innerText = calculateTeamPower(1).power;
+
   document.getElementById("end-turn-btn").disabled = state.isAITurn;
 
-  document.getElementById("workbench-label").innerText = state.active === 0 
-    ? "Your Active Dev Squad" 
-    : "Rival Agency Workbench (AI Thinking...)";
-
   // Render Contracts
-  document.getElementById("jobs-container").innerHTML = state.jobs.map((job, idx) => `
-    <div class="card ${job.tier}" onclick="handlePlayerDeliverJob(${idx})">
-      ${renderArt(job)}
-      <div>
-        <div class="text-type-tag">${job.typeLabel}</div>
-        <div class="card-title">${job.name}</div>
-        <div class="card-desc">${job.desc}</div>
+  document.getElementById("jobs-container").innerHTML = state.jobs.map((job, idx) => {
+    const odds = getOdds(job.diff);
+    const isTargeted = state.targetedCardId === `job-${idx}`;
+    return `
+      <div id="job-${idx}" class="card ${job.tier} ${isTargeted ? 'ai-target-glow' : ''}" onclick="handlePlayerDeliver(${idx})">
+        ${renderArt(job)}
+        <div>
+          <div class="card-title">${job.name}</div>
+          <div class="odds-badge ${odds.class}">${odds.label} ODDS</div>
+        </div>
+        <div class="card-stat">Needs: ${job.diff} | ⭐ +${job.reward}</div>
       </div>
-      <div class="card-stat">Needs: ${job.diff} Power<br>⭐ +${job.reward} Stars</div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   // Render Store
-  document.getElementById("store-container").innerHTML = state.store.map((item, idx) => `
-    <div class="card ${item.type === 'WORKER' ? 'card-worker' : 'card-construct'}" onclick="handlePlayerBuy(${idx})">
-      ${renderArt(item)}
-      <div>
-        <div class="text-type-tag">${item.typeLabel}</div>
-        <div class="card-title">${item.name}</div>
-        <div class="card-desc">${item.desc}</div>
+  document.getElementById("store-container").innerHTML = state.store.map((item, idx) => {
+    const isTargeted = state.targetedCardId === `shop-${idx}`;
+    return `
+      <div id="shop-${idx}" class="card ${item.type === 'WORKER' ? 'card-worker' : 'card-construct'} ${isTargeted ? 'ai-target-glow' : ''}" onclick="handlePlayerBuy(${idx})">
+        ${renderArt(item)}
+        <div>
+          <div class="card-title">${item.name}</div>
+          <div style="font-size:0.65rem; color:#94a3b8;">${item.syntax}</div>
+        </div>
+        <div class="card-stat">⚡ ${item.cost} Energy</div>
       </div>
-      <div class="card-stat">⚡ ${item.cost} Energy</div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
-  // Render Active Player's Workbench
-  const activeP = state.players[state.active];
-  document.getElementById("workbench-container").innerHTML = activeP.bench.map((w) => {
+  // Render Player Bench
+  document.getElementById("player-bench-container").innerHTML = p0.bench.map(w => {
     let pw = w.power;
-    if (w.construct) {
-      if (w.construct.effect === "DOUBLE") pw *= 2;
-      if (w.construct.effect === "PLUS_THREE") pw += 3;
-    }
+    if (w.construct && w.construct.effect === "DOUBLE") pw *= 2;
     return `
       <div class="squad-slot">
         <div>
-          <div class="text-type-tag">Active Talent</div>
-          <strong style="color:${state.active === 0 ? 'var(--p1)' : 'var(--ai)'}">${w.emoji} ${w.name}</strong>
-          <div style="font-size:0.85rem; margin-top:4px;">Power: <strong>${pw}</strong></div>
-          ${w.bonusLuck ? `<div style="font-size:0.75rem; color:#38bdf8;">+1 Spark Luck</div>` : ''}
+          <strong style="color:var(--p1)">${w.emoji} ${w.name}</strong>
+          <div style="font-size:0.75rem;">Power: <strong>${pw}</strong></div>
         </div>
-        ${w.construct 
-          ? `<div class="attached-mod">🔧 ${w.construct.name}</div>` 
-          : `<div style="font-size:0.7rem; color:#64748b;">(No Construct)</div>`}
+        ${w.construct ? `<div class="attached-mod">🔧 ${w.construct.name}</div>` : `<div style="font-size:0.65rem; color:#64748b;">(No construct)</div>`}
+      </div>
+    `;
+  }).join('');
+
+  // Render Player Hand
+  document.getElementById("player-hand-container").innerHTML = p0.hand.length === 0 
+    ? `<div style="font-size:0.75rem; color:#64748b; padding:12px;">(No cards in hand)</div>`
+    : p0.hand.map(c => `
+      <div class="card card-worker" style="width:110px; min-height:130px;">
+        <div class="card-title">${c.name}</div>
+        <div style="font-size:0.7rem;">⚡ Ready</div>
+      </div>
+    `).join('');
+
+  // Render AI Bench
+  document.getElementById("ai-bench-container").innerHTML = p1.bench.map(w => {
+    let pw = w.power;
+    if (w.construct && w.construct.effect === "DOUBLE") pw *= 2;
+    return `
+      <div class="squad-slot">
+        <div>
+          <strong style="color:var(--ai)">${w.emoji} ${w.name}</strong>
+          <div style="font-size:0.75rem;">Power: <strong>${pw}</strong></div>
+        </div>
+        ${w.construct ? `<div class="attached-mod">🔧 ${w.construct.name}</div>` : `<div style="font-size:0.65rem; color:#64748b;">(Direct)</div>`}
       </div>
     `;
   }).join('');
 }
 
 /* ==========================================================================
-   4. ACTIONS & COMBAT ENGINE
+   4. ACTIONS
    ========================================================================== */
 function handlePlayerBuy(idx) {
   if (state.active !== 0 || state.isAITurn) return;
-  buyItem(0, idx);
-}
-
-function handlePlayerDeliverJob(idx) {
-  if (state.active !== 0 || state.isAITurn) return;
-  deliverJob(0, idx);
-}
-
-function buyItem(playerIdx, itemIdx) {
-  const p = state.players[playerIdx];
-  const item = state.store[itemIdx];
+  const p = state.players[0];
+  const item = state.store[idx];
 
   if (p.energy < item.cost) {
-    if (playerIdx === 0) {
-      AudioEngine.playError();
-      log("Not enough Energy left this turn!");
-    }
-    return false;
+    AudioEngine.playError();
+    log("Not enough Energy!");
+    return;
   }
 
   AudioEngine.playClick();
   p.energy -= item.cost;
 
   if (item.type === "WORKER") {
-    p.bench.push({ 
-      name: item.name, 
-      power: item.power, 
-      emoji: item.emoji, 
-      bonusLuck: item.bonusLuck || 0,
-      construct: null 
-    });
-    log(`${playerIdx === 0 ? 'You' : 'Rival AI'} hired **${item.name}**.`);
-  } else if (item.type === "CONSTRUCT") {
-    if (item.effect === "BATTERY") {
-      p.battery += 1;
-      log(`${playerIdx === 0 ? 'You' : 'Rival AI'} bought a **Battery Pack**.`);
-    } else if (item.effect === "ENERGY_BOOST") {
-      p.extraBaseEnergy += 1;
-      log(`${playerIdx === 0 ? 'You' : 'Rival AI'} launched a **Cloud Server** (+1 Base Energy per round)!`);
-    } else {
-      const openWorker = p.bench.find(w => !w.construct);
-      if (!openWorker) {
-        p.energy += item.cost;
-        if (playerIdx === 0) log("No open worker to attach this construct to!");
-        return false;
-      }
-      openWorker.construct = item;
-      log(`${playerIdx === 0 ? 'You' : 'Rival AI'} attached **${item.name}** to ${openWorker.name}!`);
+    p.bench.push({ name: item.name, syntax: item.syntax, power: item.power, emoji: item.emoji, bonusLuck: item.bonusLuck || 0, construct: null });
+    log(`You hired **${item.name}**.`);
+  } else {
+    const openWorker = p.bench.find(w => !w.construct);
+    if (!openWorker) {
+      p.energy += item.cost;
+      log("No open worker to attach this modifier to!");
+      return;
     }
+    openWorker.construct = item;
+    log(`Attached **${item.name}** to ${openWorker.name}!`);
   }
 
-  // Refill market slot
-  state.store[itemIdx] = SHOP_DB[Math.floor(Math.random() * SHOP_DB.length)];
+  state.store[idx] = SHOP_DB[Math.floor(Math.random() * SHOP_DB.length)];
   render();
-  return true;
+}
+
+function handlePlayerDeliver(idx) {
+  if (state.active !== 0 || state.isAITurn) return;
+  deliverJob(0, idx);
 }
 
 function deliverJob(playerIdx, jobIdx) {
   const p = state.players[playerIdx];
   const job = state.jobs[jobIdx];
+  const { power, bonusLuck } = calculateTeamPower(playerIdx);
 
-  let totalPower = 0;
-  let totalBonusLuck = 0;
-  let hasShield = false;
+  const roll = Math.floor(Math.random() * 4) + 1 + bonusLuck;
+  const total = power + roll;
 
-  p.bench.forEach(w => {
-    let pw = w.power;
-    if (w.bonusLuck) totalBonusLuck += w.bonusLuck;
-    if (w.construct) {
-      if (w.construct.effect === "DOUBLE") pw *= 2;
-      if (w.construct.effect === "PLUS_THREE") pw += 3;
-      if (w.construct.effect === "SHIELD") hasShield = true;
-    }
-    totalPower += pw;
-  });
+  log(`${playerIdx === 0 ? 'You tackle' : 'Rival tackles'} **${job.name}**: Power (${power}) + Roll (${roll}) = ${total} vs ${job.diff}`);
 
-  const baseRoll = Math.floor(Math.random() * 4) + 1; // 1 to 4
-  const finalRoll = baseRoll + totalBonusLuck;
-  const totalAttack = totalPower + finalRoll;
-
-  log(`${playerIdx === 0 ? 'You tackle' : 'Rival AI tackles'} **${job.name}**: Power (${totalPower}) + Spark (${finalRoll}${totalBonusLuck ? ` [incl. +${totalBonusLuck}]` : ''}) = ${totalAttack} vs ${job.diff}`);
-
-  if (totalAttack >= job.diff) {
+  if (total >= job.diff) {
     p.score += job.reward;
     AudioEngine.playSuccess();
-    document.getElementById("board-layout").classList.add("punch-effect");
-    setTimeout(() => document.getElementById("board-layout").classList.remove("punch-effect"), 350);
+    document.getElementById("arena-surface").classList.add("punch-effect");
+    setTimeout(() => document.getElementById("arena-surface").classList.remove("punch-effect"), 350);
 
-    log(`🚀 **Delivered!** Earned +${job.reward} Stars.`);
+    log(`✅ Delivered! +${job.reward} Stars.`);
     state.jobs[jobIdx] = JOBS_DB[Math.floor(Math.random() * JOBS_DB.length)];
 
     if (p.score >= 10) {
-      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      confetti({ particleCount: 160, spread: 80, origin: { y: 0.6 } });
       setTimeout(() => {
-        alert(playerIdx === 0 ? "🎉 YOU WON THE TECH SPRINT!" : "🤖 RIVAL AI WON THE SPRINT!");
+        alert(playerIdx === 0 ? "🎉 VICTORY! YOU HIT 10 STARS FIRST!" : "🤖 RIVAL WON THE RACE!");
         location.reload();
       }, 500);
       return;
     }
   } else {
     AudioEngine.playError();
-    document.getElementById("board-layout").classList.add("shake-effect");
-    setTimeout(() => document.getElementById("board-layout").classList.remove("shake-effect"), 300);
-
-    if (hasShield) {
-      log(`🦺 Missed deadline, but **Safety Net** shielded your Energy!`);
-    } else {
-      p.energy = Math.max(0, p.energy - 1);
-      log(`❌ Failed delivery! Penalty: -1 Energy.`);
-    }
+    document.getElementById("arena-surface").classList.add("shake-effect");
+    setTimeout(() => document.getElementById("arena-surface").classList.remove("shake-effect"), 300);
+    p.energy = Math.max(0, p.energy - 1);
+    log(`❌ Failed delivery! -1 Energy.`);
   }
   render();
 }
 
 function endTurn() {
+  if (state.isAITurn) return;
   AudioEngine.playClick();
-  const currentP = state.players[state.active];
 
-  // Battery retention
-  let carryOver = 0;
-  if (currentP.battery > 0 && currentP.energy > 0) {
-    carryOver = Math.min(currentP.energy, currentP.battery);
-  }
-
-  // Swap turn
   state.active = state.active === 0 ? 1 : 0;
   const nextP = state.players[state.active];
+  nextP.energy = 3;
 
-  let baseEnergy = 3 + nextP.extraBaseEnergy + carryOver;
-
-  // Fame & Fable rubber-banding catch-up
-  const otherP = state.players[state.active === 0 ? 1 : 0];
-  if (otherP.score - nextP.score >= 3) {
-    baseEnergy += 1;
-    log(`${state.active === 0 ? 'You receive' : 'Rival AI receives'} +1 Catch-up Energy!`);
-  }
-
-  nextP.energy = baseEnergy;
   render();
 
   if (state.active === 1) {
-    runAITurn();
+    setCamera('ai'); // Auto-pan camera up to AI
+    startVisualAI();
+  } else {
+    setCamera('arena');
   }
 }
 
 /* ==========================================================================
-   5. HEURISTIC AI LOGIC
+   5. VISUAL AI STORYTELLER
    ========================================================================== */
-function runAITurn() {
+let aiStep = 0;
+let aiPlan = [];
+
+function startVisualAI() {
   state.isAITurn = true;
-  document.getElementById("end-turn-btn").disabled = true;
-  log("🤖 Rival AI is planning its sprint...");
+  aiStep = 0;
+  aiPlan = [];
 
-  setTimeout(() => {
+  const bubble = document.getElementById("ai-speech");
+  bubble.style.display = "flex";
+
+  const ai = state.players[1];
+  const { power } = calculateTeamPower(1);
+
+  // AI Step 1: Buy
+  const openW = ai.bench.find(w => !w.construct);
+  let buyIdx = -1;
+  if (openW) {
+    buyIdx = state.store.findIndex(i => i.type === "CONSTRUCT" && i.cost <= ai.energy);
+  }
+  if (buyIdx === -1) {
+    buyIdx = state.store.findIndex(i => i.type === "WORKER" && i.cost <= ai.energy);
+  }
+
+  if (buyIdx !== -1) {
+    const card = state.store[buyIdx];
+    aiPlan.push({ type: "BUY", idx: buyIdx, target: `shop-${buyIdx}`, speech: `I'll allocate ⚡ ${card.cost} into <strong>${card.name}</strong>!` });
+  } else {
+    aiPlan.push({ type: "PASS_BUY", speech: `Conserving my energy for the next sprint.` });
+  }
+
+  // AI Step 2: Tackle Contract
+  const viableJobIdx = state.jobs.findIndex(j => (power + 2) >= j.diff);
+  if (viableJobIdx !== -1) {
+    const j = state.jobs[viableJobIdx];
+    aiPlan.push({ type: "DELIVER", idx: viableJobIdx, target: `job-${viableJobIdx}`, speech: `Aiming my compute power at <strong>${j.name}</strong>!` });
+  } else {
+    aiPlan.push({ type: "PASS_JOB", speech: `Contracts are too risky. Passing to preserve uptime.` });
+  }
+
+  aiPlan.push({ type: "WRAP", speech: `Sprint completed. Handing control back to you!` });
+  showAIStep();
+}
+
+function showAIStep() {
+  const step = aiPlan[aiStep];
+  state.targetedCardId = step.target || null;
+  document.getElementById("ai-text").innerHTML = step.speech;
+  render();
+}
+
+function advanceAIStep() {
+  const step = aiPlan[aiStep];
+  if (step.type === "BUY") {
+    const item = state.store[step.idx];
     const ai = state.players[1];
-
-    let aiPower = ai.bench.reduce((sum, w) => {
-      let pw = w.power;
-      if (w.construct && w.construct.effect === "DOUBLE") pw *= 2;
-      if (w.construct.effect === "PLUS_THREE") pw += 3;
-      return sum + pw;
-    }, 0);
-
-    // Check for high-probability contracts
-    const safeJobIdx = state.jobs.findIndex(j => (aiPower + 2) >= j.diff);
-
-    if (safeJobIdx !== -1) {
-      deliverJob(1, safeJobIdx);
+    ai.energy -= item.cost;
+    if (item.type === "WORKER") {
+      ai.bench.push({ name: item.name, syntax: item.syntax, power: item.power, emoji: item.emoji, bonusLuck: 0, construct: null });
     } else {
-      // Otherwise optimize workbench
-      const affordableIdx = state.store.findIndex(item => item.cost <= ai.energy);
-      if (affordableIdx !== -1) {
-        buyItem(1, affordableIdx);
-      } else {
-        log("🤖 Rival AI banks remaining Energy.");
-      }
+      const openW = ai.bench.find(w => !w.construct);
+      if (openW) openW.construct = item;
     }
+    state.store[step.idx] = SHOP_DB[Math.floor(Math.random() * SHOP_DB.length)];
+  } else if (step.type === "DELIVER") {
+    deliverJob(1, step.idx);
+  }
 
-    setTimeout(() => {
-      state.isAITurn = false;
-      endTurn();
-    }, 1200);
-  }, 1000);
+  aiStep++;
+  if (aiStep < aiPlan.length) {
+    showAIStep();
+  } else {
+    // Finish AI Turn
+    state.targetedCardId = null;
+    state.isAITurn = false;
+    document.getElementById("ai-speech").style.display = "none";
+    setCamera('player'); // Smoothly pan back down to player
+    endTurn();
+  }
+}
+
+function init() {
+  state.jobs = [JOBS_DB[0], JOBS_DB[1], JOBS_DB[4]];
+  state.store = [SHOP_DB[1], SHOP_DB[4], SHOP_DB[5], SHOP_DB[0]];
+  render();
+  log("Arena initialized. Hit 'Done: End Turn' to watch the AI's camera director in action.");
 }
 
 init();
