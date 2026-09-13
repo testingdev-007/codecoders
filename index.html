@@ -3,702 +3,310 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Code, Crunch & Coffee: Verified Fair Engine</title>
+<title>Code, Crunch & Coffee: Gold Standard</title>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
   :root {
-    --bg: #050813;
-    --panel-base: #0a1122;
-    --panel-border: #1e2d4d;
+    --bg: #030712;
+    --panel-bg: #0f172a;
+    --panel-border: #1e293b;
     --p1: #38bdf8;
-    --p1-glow: rgba(56, 189, 248, 0.35);
     --ai: #f43f5e;
-    --ai-glow: rgba(244, 63, 94, 0.35);
-    --gold: #f59e0b;
-    --gold-glow: rgba(245, 158, 11, 0.4);
-    --success: #10b981;
-    --coffee-warm: #d97706;
-    --coffee-glow: rgba(217, 119, 6, 0.4);
-    --tag-design: #ec4899;
-    --tag-systems: #3b82f6;
-    --tag-logic: #10b981;
+    --gold: #fbbf24;
+    --coffee: #d97706;
+    --highlight: #a855f7;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
   }
-  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; }
+
+  * { box-sizing: border-box; font-family: var(--font); }
+  
   body {
-    margin: 0;
-    padding: clamp(6px, 1.2vw, 14px);
-    background: radial-gradient(circle at 50% 8%, #101a35 0%, var(--bg) 85%);
-    color: #f1f5f9;
-    user-select: none;
+    margin: 0; padding: 12px;
+    background: radial-gradient(circle at top, #0f172a, var(--bg));
+    color: #f8fafc;
     min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow-x: hidden;
+    display: flex; flex-direction: column; gap: 12px;
+    overflow-x: hidden; user-select: none;
   }
 
-  /* SPLASH SCREEN */
-  #splash-screen {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100dvh;
-    background: radial-gradient(circle at center, #111e3b 0%, #040711 90%);
-    z-index: 5000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    text-align: center;
-  }
-  .splash-box {
-    max-width: 540px;
-    background: #090f1f;
-    border: 2px solid #233559;
-    border-radius: 18px;
-    padding: clamp(24px, 4vw, 36px);
-    box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 30px var(--p1-glow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-  .splash-mug {
-    font-size: 3.5rem;
-    background: #1c1109;
-    border: 2px solid var(--coffee-warm);
-    border-radius: 16px;
-    padding: 12px 18px;
-    box-shadow: 0 0 20px var(--coffee-glow);
-  }
-  .splash-title {
-    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-    font-weight: 900;
-    color: #f8fafc;
-    margin: 0;
-    line-height: 1.1;
-  }
-  .splash-tagline {
-    font-size: clamp(0.75rem, 1.2vw, 0.9rem);
-    color: var(--coffee-warm);
-    font-weight: 800;
-    text-transform: uppercase;
-  }
-  .splash-actions { display: flex; gap: 12px; width: 100%; flex-wrap: wrap; }
-  .btn-splash-play {
-    flex: 1; min-width: 160px; background: var(--p1); color: #000;
-    font-size: 0.95rem; font-weight: 800; padding: 12px; border-radius: 8px;
-  }
-  .btn-splash-tour {
-    flex: 1; min-width: 160px; background: #4338ca; color: #fff;
-    font-size: 0.95rem; font-weight: 800; padding: 12px; border-radius: 8px; border: 1px solid #818cf8;
-  }
-
-  /* BRAND HEADER */
+  /* --- HEADER & STATUS --- */
   header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(180deg, #0f1a33, #080e1c);
-    padding: clamp(6px, 1vw, 12px) clamp(10px, 1.5vw, 20px);
-    border-radius: 12px;
-    border: 1px solid var(--panel-border);
-    margin-bottom: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    flex-wrap: wrap;
-    gap: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: #020617; border: 1px solid var(--panel-border);
+    padding: 10px 20px; border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   }
-  .brand-block { display: flex; align-items: center; gap: 8px; }
-  .brand-mug {
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
-    background: #1e130c;
-    border: 1px solid var(--coffee-warm);
-    border-radius: 6px;
-    padding: 2px 6px;
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon { font-size: 1.8rem; background: #1a1005; border: 1px solid var(--coffee); padding: 4px 8px; border-radius: 8px; box-shadow: 0 0 10px rgba(217,119,6,0.3); }
+  .brand-title { font-weight: 900; font-size: 1.1rem; line-height: 1.1; letter-spacing: 0.05em; }
+  .brand-sub { font-size: 0.65rem; color: var(--coffee); font-weight: 800; text-transform: uppercase; }
+
+  .status-bar { display: flex; align-items: center; gap: 20px; background: #0f172a; padding: 6px 16px; border-radius: 8px; border: 1px solid #1e293b; }
+  .stat { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .btn-action { background: var(--p1); color: #000; font-weight: 800; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .btn-action:hover { transform: scale(1.05); }
+  .btn-action:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; transform: none; }
+
+  /* --- DYNAMIC INSTRUCTION BANNER (FOR TARGETING) --- */
+  #instruction-banner {
+    display: none; justify-content: center; align-items: center;
+    background: #4c1d95; color: #fff; padding: 10px; border-radius: 8px;
+    font-weight: 800; font-size: 0.9rem; letter-spacing: 0.05em;
+    border: 2px solid #a855f7; box-shadow: 0 0 20px rgba(168,85,247,0.5);
+    animation: pulseBanner 1.5s infinite alternate;
   }
-  .brand-title {
-    font-size: clamp(0.85rem, 1.3vw, 1.05rem);
-    font-weight: 900;
-    color: #f8fafc;
-    line-height: 1.1;
-  }
-  .brand-subtitle {
-    font-size: clamp(0.55rem, 0.8vw, 0.65rem);
-    color: var(--coffee-warm);
-    font-weight: 700;
-    text-transform: uppercase;
+  @keyframes pulseBanner { from { box-shadow: 0 0 10px #a855f7; } to { box-shadow: 0 0 25px #d8b4fe; } }
+
+  /* --- 3-COLUMN ARENA --- */
+  .arena {
+    display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px;
+    flex-grow: 1; min-height: 0; overflow-y: auto; padding-right: 4px;
   }
 
-  .track-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-grow: 1;
-    max-width: min(420px, 100%);
-    min-width: 220px;
-    position: relative;
+  .zone {
+    background: var(--panel-bg); border: 2px solid var(--panel-border);
+    border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4); position: relative;
   }
-  .track-bar {
-    background: #152238;
-    border-radius: 999px;
-    height: 14px;
-    width: 100%;
-    position: relative;
-    overflow: visible;
-    border: 1px solid #2a3c61;
+  .zone-title {
+    font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #1e293b; padding-bottom: 8px;
   }
-  .track-milestone {
-    position: absolute;
-    top: -5px;
-    font-size: 0.65rem;
-    background: #090e1a;
-    border: 1px solid var(--coffee-warm);
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-  }
-  .fill-p1 { position: absolute; top: 0; left: 0; height: 100%; background: var(--p1); transition: width 0.4s ease; border-radius: 999px; }
-  .fill-ai { position: absolute; top: 0; right: 0; height: 100%; background: var(--ai); transition: width 0.4s ease; border-radius: 999px; }
+  
+  .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .list-layout { display: flex; flex-direction: column; gap: 10px; }
 
-  /* ARENA GRID */
-  .arena-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    flex-grow: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 2px;
-  }
-  @media (max-width: 960px) {
-    .arena-grid { grid-template-columns: 1fr; height: auto; }
-    body { height: auto; overflow-y: auto; }
-    #hand-dock { position: sticky; bottom: 0; z-index: 100; }
-  }
-
-  .sector {
-    background: var(--panel-base);
-    border-radius: 10px;
-    padding: clamp(8px, 1vw, 12px);
-    border: 1px solid var(--panel-border);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  }
-  .sector-ai { border-color: rgba(244, 63, 94, 0.4); }
-  .sector-player { border-color: rgba(56, 189, 248, 0.4); }
-  .sector-title {
-    font-size: clamp(0.7rem, 0.9vw, 0.78rem);
-    font-weight: 800;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .coffee-inventory-badge {
-    background: #1c130b;
-    border: 1px solid var(--coffee-warm);
-    border-radius: 6px;
-    padding: 2px 6px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    color: #fef3c7;
-  }
-
-  .card-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
-    gap: 8px;
-  }
-  .market-subgrid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  /* CARDS */
+  /* --- CARDS --- */
   .card {
-    background: #111a2e;
-    border: 2px solid #233559;
-    border-radius: 8px;
-    padding: 6px;
-    min-height: 140px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    transition: transform 0.15s ease, border-color 0.15s ease;
-    overflow: hidden;
+    background: #0b1121; border: 2px solid #1e293b; border-radius: 8px;
+    padding: 8px; display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 160px; cursor: pointer; transition: 0.2s; position: relative;
   }
-  .card:hover { transform: translateY(-3px); border-color: #38bdf8; }
-  .card.exhausted { opacity: 0.35; filter: grayscale(90%); transform: rotate(-2deg); }
-  .card.committed { border-color: var(--p1) !important; box-shadow: 0 0 14px var(--p1-glow); }
-  .super-card { border-color: var(--ai) !important; background: linear-gradient(180deg, #240e1b, #111a2e); }
+  .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 6px 16px rgba(0,0,0,0.6); }
+  
+  .card-art {
+    height: 55px; background: #020617; border-radius: 4px; display: flex;
+    align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 6px;
+    border: 1px solid #1e293b;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .card-type { font-size: 0.6rem; font-weight: 800; color: #94a3b8; }
+  .card-title { font-size: 0.75rem; font-weight: 800; color: #f8fafc; line-height: 1.2; }
+  .card-desc { font-size: 0.65rem; color: #64748b; margin-top: 4px; line-height: 1.3; }
+  .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px; font-size: 0.7rem; font-weight: 800; }
 
-  .card-plate {
-    height: 46px;
-    border-radius: 4px;
-    background: #070d1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    margin-bottom: 4px;
+  /* Status Overlays */
+  .card.exhausted { opacity: 0.4; filter: grayscale(100%); }
+  .card.committed { border-color: var(--p1); box-shadow: 0 0 16px var(--p1-glow); }
+  
+  /* Targeting States */
+  body.targeting-mode .card { opacity: 0.2; pointer-events: none; }
+  body.targeting-mode .card.target-valid { 
+    opacity: 1; pointer-events: auto; border-color: var(--highlight); 
+    box-shadow: 0 0 20px rgba(168,85,247,0.8); animation: bounceTarget 1s infinite;
   }
-  .card-plate-icon { font-size: 1.4rem; }
-  .card-title { font-weight: 800; font-size: clamp(0.7rem, 0.85vw, 0.75rem); line-height: 1.2; color: #f8fafc; }
-  .card-meta { font-size: 0.6rem; color: #94a3b8; }
-  .card-stat-box {
-    margin-top: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    font-size: 0.68rem;
-    font-weight: 700;
-  }
+  @keyframes bounceTarget { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
-  .tag { padding: 1px 4px; border-radius: 3px; font-size: 0.58rem; font-weight: 800; }
+  .super-project { border-color: var(--ai); background: #1a0b12; }
+
+  /* Tags */
+  .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 800; }
   .tag-design { background: #831843; color: #fbcfe8; }
   .tag-systems { background: #1e3a8a; color: #bfdbfe; }
   .tag-logic { background: #064e3b; color: #a7f3d0; }
 
-  /* DOCKED HAND TRAY */
+  /* --- HAND DOCK --- */
   #hand-dock {
-    min-height: 105px;
-    background: linear-gradient(180deg, #090f1d, #040711);
-    border: 2px solid #233559;
-    border-radius: 10px;
-    padding: 6px 12px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 8px;
+    background: #020617; border: 2px solid var(--panel-border); border-radius: 12px;
+    padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.5); min-height: 120px;
   }
-  .hand-drawer {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    flex-grow: 1;
-    align-items: center;
-    padding: 4px 0;
-  }
-  .hand-card { min-width: 105px; max-width: 105px; min-height: 85px; padding: 6px; font-size: 0.7rem; }
+  .hand-cards { display: flex; gap: 10px; overflow-x: auto; flex-grow: 1; padding: 4px 0; }
+  .hand-cards .card { min-width: 120px; max-width: 120px; min-height: 90px; }
 
-  /* FULL-SCREEN SHOWCASE MODAL */
-  #card-modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100dvh;
-    background: rgba(3, 6, 15, 0.92);
-    backdrop-filter: blur(8px);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
+  /* --- FULLSCREEN MODAL --- */
+  #modal-backdrop {
+    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+    background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(8px); z-index: 1000;
+    justify-content: center; align-items: center; padding: 20px;
   }
-  .showcase-plate {
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 14px;
-    padding: clamp(16px, 3vw, 24px);
-    width: min(420px, 94vw);
-    max-height: 90dvh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  .modal-card {
+    background: #0f172a; border: 2px solid #334155; border-radius: 16px;
+    width: 100%; max-width: 420px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    display: flex; flex-direction: column; gap: 14px;
   }
-  .showcase-art {
-    height: 100px;
-    border-radius: 8px;
-    background: radial-gradient(circle at center, #1b2842 0%, #090e1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
+  .modal-art {
+    height: 120px; background: #020617; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-size: 4rem; border: 1px solid #1e293b;
   }
+  .modal-btn {
+    width: 100%; padding: 12px; font-size: 0.9rem; font-weight: 800; border: none;
+    border-radius: 8px; cursor: pointer; transition: 0.2s; margin-top: 4px;
+  }
+  .modal-btn:hover { opacity: 0.9; transform: scale(1.02); }
+  .btn-primary { background: var(--p1); color: #000; }
+  .btn-trait { background: var(--highlight); color: #fff; }
+  .btn-cancel { background: #334155; color: #f8fafc; }
 
-  /* SPOTLIGHT TOUR OVERLAY */
-  #tour-backdrop {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100dvh;
-    background: rgba(4, 7, 18, 0.78);
-    backdrop-filter: blur(3px);
-    z-index: 3000;
-    pointer-events: auto;
+  /* Log */
+  #game-log {
+    position: fixed; bottom: 140px; right: 20px; width: 300px; max-height: 120px;
+    background: rgba(2, 6, 23, 0.8); border: 1px solid #1e293b; border-radius: 8px;
+    padding: 10px; font-size: 0.75rem; overflow-y: auto; color: #94a3b8; line-height: 1.4;
+    pointer-events: none; z-index: 50; backdrop-filter: blur(4px);
   }
-  .tour-highlight {
-    position: relative;
-    z-index: 3001 !important;
-    border-color: #a855f7 !important;
-    box-shadow: 0 0 25px rgba(168, 85, 247, 0.8) !important;
-  }
-  .tour-card {
-    position: fixed;
-    background: #0d152c;
-    border: 2px solid #818cf8;
-    border-radius: 12px;
-    padding: 16px;
-    width: min(360px, 90vw);
-    z-index: 3002;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: clamp(5px, 0.8vw, 7px) clamp(8px, 1.2vw, 14px);
-    font-weight: 700;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: clamp(0.72rem, 0.85vw, 0.8rem);
-  }
-  .btn:hover { opacity: 0.9; }
-  .btn-coffee { background: var(--coffee-warm); color: #fff; }
-  .btn-end { background: var(--p1); color: #000; font-weight: 800; }
-  .btn-modal { width: 100%; padding: 10px; font-size: 0.8rem; border-radius: 6px; font-weight: 800; }
-
-  .log-panel {
-    background: #02050c;
-    border: 1px solid #19253f;
-    border-radius: 6px;
-    padding: 4px 10px;
-    height: 38px;
-    overflow-y: auto;
-    font-size: 0.7rem;
-    line-height: 1.35;
-    margin-top: 6px;
-  }
+  #game-log div { margin-bottom: 4px; }
+  #game-log strong { color: #f8fafc; }
 </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splash-screen">
-  <div class="splash-box">
-    <div class="splash-mug">☕</div>
-    <div>
-      <h1 class="splash-title">CODE, CRUNCH & COFFEE</h1>
-      <div class="splash-tagline">Ship to Prod or Burn Out Trying</div>
-    </div>
-    <p style="font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
-      The authentic tabletop adaptation. Deploy your starter heroes for free, draft coding dependencies, manage sticky exhaustion, and race to <strong>10 Kudos (⭐)</strong>.
-    </p>
-    <div class="splash-actions">
-      <button class="btn btn-splash-play" onclick="dismissSplashAndPlay()">🚀 Quick Play (Dive In)</button>
-      <button class="btn btn-splash-tour" onclick="dismissSplashAndTour()">🗺️ Guided Board Tour</button>
-    </div>
-  </div>
-</div>
-
 <header>
-  <div class="brand-block">
-    <div class="brand-mug">☕</div>
+  <div class="brand">
+    <div class="brand-icon">☕</div>
     <div>
       <div class="brand-title">CODE, CRUNCH & COFFEE</div>
-      <div class="brand-subtitle">Authentic Deck Engine</div>
+      <div class="brand-sub">The Tactical Dev Battler</div>
     </div>
-    <button class="btn" style="background:#4338ca; font-size:0.7rem; margin-left:6px;" onclick="startInteractiveTour()">🗺️ Board Tour</button>
-    <button class="btn" style="background:#1e293b; font-size:0.7rem; margin-left:4px;" onclick="openRules()">📖 Rulebook</button>
   </div>
 
-  <!-- KUDOS TRACK -->
-  <div class="track-wrap" id="spotlight-track">
-    <span style="font-size:0.72rem; color:var(--p1); font-weight:800;">YOU: <span id="p0-score">0</span> ⭐</span>
-    <div class="track-bar">
-      <div class="track-milestone" style="left: 30%;">☕</div>
-      <div class="track-milestone" style="left: 70%;">☕</div>
-      <div id="track-p0" class="fill-p1" style="width: 0%;"></div>
-      <div id="track-ai" class="fill-ai" style="width: 0%;"></div>
-    </div>
-    <span style="font-size:0.72rem; color:var(--ai); font-weight:800;">AI: <span id="ai-score">0</span> ⭐</span>
+  <div class="status-bar">
+    <div class="stat" style="color:var(--gold);">⭐ Kudos: <span id="ui-kudos">0</span> / 10</div>
+    <div class="stat" style="color:var(--p1);">⚡ Actions: <span id="ui-energy">3</span></div>
+    <div class="stat" style="color:var(--coffee);">☕ Coffee: <span id="ui-coffee">0</span></div>
   </div>
 
-  <div style="display:flex; gap:8px; align-items:center;">
-    <div style="font-size:0.78rem;">
-      <span>⚡ Actions: <strong id="p0-energy" style="color:var(--p1);">3</strong> / 3</span>
-    </div>
-    <button class="btn btn-end" onclick="endTurn()">Done: End Turn</button>
+  <div style="display:flex; gap:10px;">
+    <button class="btn-action" style="background:var(--coffee); color:#fff;" onclick="startCoffeeBreak()">☕ Use Coffee</button>
+    <button class="btn-action" id="btn-end-turn" onclick="endTurn()">End Turn</button>
   </div>
 </header>
 
-<div class="arena-grid">
-  <!-- LEFT WING -->
-  <div style="display:flex; flex-direction:column; gap:10px;">
-    <!-- SPRINT BACKLOG -->
-    <div class="sector" id="sector-backlog" style="border-color: rgba(245, 158, 11, 0.4);">
-      <div class="sector-title">
-        <span style="color:var(--gold);">SPRINT BACKLOG (PROJECTS)</span>
-        <span style="font-size:0.65rem; color:#94a3b8;">Deck remaining: <span id="project-deck-count">0</span></span>
-      </div>
-      <div class="card-row" id="projects-container"></div>
-    </div>
+<div id="instruction-banner">⚠️ INSTRUCTION BANNER</div>
 
-    <!-- 3x3 MARKET -->
-    <div class="sector" id="sector-market">
-      <div class="sector-title">
-        <span style="color:#60a5fa;">3×3 REPOSITORY (MARKET)</span>
-        <span style="font-size:0.65rem; color:#94a3b8;">Draft Cards to Hand</span>
-      </div>
-      <div class="market-subgrid">
-        <div>
-          <div style="font-size:0.62rem; font-weight:800; color:#94a3b8; margin-bottom:2px;">1. COLLEAGUES (STAFF DECK: <span id="colleague-deck-count">0</span>)</div>
-          <div class="card-row" id="market-colleagues"></div>
-        </div>
-        <div>
-          <div style="font-size:0.62rem; font-weight:800; color:#c084fc; margin-bottom:2px;">2. CODING ITEMS (CONSTRUCTS: <span id="item-deck-count">0</span>)</div>
-          <div class="card-row" id="market-items"></div>
-        </div>
-        <div>
-          <div style="font-size:0.62rem; font-weight:800; color:#a855f7; margin-bottom:2px;">3. COMPANY CONTRACTS (BOUNTIES)</div>
-          <div class="card-row" id="market-tasks"></div>
-        </div>
-      </div>
-    </div>
+<div class="arena">
+  <!-- LEFT: BACKLOG -->
+  <div class="zone" style="border-color: rgba(245, 158, 11, 0.3);">
+    <div class="zone-title"><span style="color:var(--gold);">1. Sprint Backlog (Projects)</span></div>
+    <div class="list-layout" id="projects-container"></div>
   </div>
 
-  <!-- RIGHT WING -->
-  <div style="display:flex; flex-direction:column; gap:10px;">
-    <!-- RIVAL AI -->
-    <div class="sector sector-ai" id="sector-ai">
-      <div class="sector-title">
-        <span style="color:var(--ai);">🤖 RIVAL AGENCY TERMINAL</span>
-        <span style="font-size:0.68rem; color:#94a3b8;">Office: <span id="ai-count">0</span>/6 | ⚡ <span id="ai-energy">3</span></span>
-      </div>
-      <div class="card-row" id="ai-office-container"></div>
-    </div>
+  <!-- CENTER: MARKET -->
+  <div class="zone" style="border-color: rgba(56, 189, 248, 0.3);">
+    <div class="zone-title"><span style="color:var(--p1);">2. Dependency Market (3x3)</span></div>
+    <div style="font-size:0.65rem; color:#94a3b8; font-weight:800; margin-bottom:-4px;">COLLEAGUES</div>
+    <div class="grid-layout" id="market-colleagues"></div>
+    <div style="font-size:0.65rem; color:#94a3b8; font-weight:800; margin:8px 0 -4px 0;">CODING CONSTRUCTS (ITEMS)</div>
+    <div class="grid-layout" id="market-items"></div>
+    <div style="font-size:0.65rem; color:#94a3b8; font-weight:800; margin:8px 0 -4px 0;">COMPANY BOUNTIES</div>
+    <div class="grid-layout" id="market-tasks"></div>
+  </div>
 
-    <!-- PLAYER OFFICE -->
-    <div class="sector sector-player" id="sector-office" style="flex-grow:1;">
-      <div class="sector-title">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="color:var(--p1);">💻 YOUR OFFICE TERMINAL</span>
-          <span style="font-size:0.68rem; color:#94a3b8;">(<span id="player-count">0</span>/6 Staff Limit)</span>
-        </div>
-        
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <div class="coffee-inventory-badge">
-            <span>☕ Earned Coffee:</span>
-            <span id="coffee-stash-count" style="color:var(--gold);">0</span>
-          </div>
-          <button class="btn btn-coffee" onclick="spendCoffeeToken()">☕ Drink Coffee (Ready All Staff!)</button>
-        </div>
+  <!-- RIGHT: OFFICES -->
+  <div style="display:flex; flex-direction:column; gap:16px;">
+    <div class="zone" style="border-color: rgba(244, 63, 94, 0.3); min-height:220px;">
+      <div class="zone-title"><span style="color:var(--ai);">🤖 Rival Office (<span id="ai-office-count">0</span>/6)</span></div>
+      <div class="grid-layout" id="ai-office-container"></div>
+    </div>
+    <div class="zone" style="border-color: rgba(168, 85, 247, 0.3); flex-grow:1;">
+      <div class="zone-title">
+        <span style="color:var(--highlight);">💻 Your Office (<span id="player-office-count">0</span>/6)</span>
+        <span style="font-size:0.65rem; color:#94a3b8;">Total Velocity: <span id="ui-velocity" style="color:#fff;">0</span> SP</span>
       </div>
-      <div class="card-row" id="player-office-container"></div>
+      <div class="grid-layout" id="player-office-container"></div>
     </div>
   </div>
 </div>
 
-<!-- DOCKED HAND -->
+<!-- BOTTOM: HAND -->
 <div id="hand-dock">
-  <div style="min-width:115px;">
-    <div style="font-size:0.72rem; font-weight:800; color:var(--p1);">YOUR HAND</div>
-    <div style="font-size:0.62rem; color:#94a3b8;"><span id="hand-count">2</span> / 6 Limit</div>
-    <div style="font-size:0.58rem; color:#34d399; font-weight:700;">Deploy is FREE (⚡ 0)!</div>
+  <div style="min-width:120px;">
+    <div style="font-size:0.8rem; font-weight:800; color:var(--p1);">DOCKED HAND</div>
+    <div style="font-size:0.65rem; color:#94a3b8;"><span id="ui-hand-count">0</span> / 6 Limit</div>
   </div>
-  <div class="hand-drawer" id="player-hand-container"></div>
+  <div class="hand-cards" id="player-hand-container"></div>
 </div>
 
-<div class="log-panel" id="game-log"></div>
+<div id="game-log"></div>
 
-<!-- CARD SHOWCASE MODAL -->
-<div id="card-modal" onclick="closeModal()">
-  <div class="showcase-plate" onclick="event.stopPropagation()" id="modal-content"></div>
-</div>
-
-<!-- TOUR OVERLAY -->
-<div id="tour-backdrop">
-  <div class="tour-card" id="tour-card-box">
-    <span style="font-size:0.65rem; font-weight:800; background:#4338ca; color:#e0e7ff; padding:2px 6px; border-radius:4px; width:fit-content;" id="tour-step-badge">STEP 1 OF 5</span>
-    <h3 style="font-size:0.95rem; font-weight:800; color:#f8fafc; margin:0;" id="tour-title">The Sprint Backlog</h3>
-    <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.45; margin:0;" id="tour-desc">Client contracts wait here. Deliver them to bank Kudos (⭐).</p>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-      <button class="btn" style="background:#334155; font-size:0.72rem;" onclick="endTour()">Exit Tour</button>
-      <button class="btn" style="background:#38bdf8; color:#000; font-weight:800; font-size:0.75rem;" onclick="nextTourStep()">Next ➔</button>
-    </div>
-  </div>
+<!-- MODAL -->
+<div id="modal-backdrop" onclick="cancelAction()">
+  <div class="modal-card" id="modal-content" onclick="event.stopPropagation()"></div>
 </div>
 
 <script>
 /* ==========================================================================
-   MASTER CARD REPOSITORIES (FINITE DECK MANIFEST)
+   GAME DATA (STRICT AUTHENTIC RULES)
    ========================================================================== */
-const MASTER_COLLEAGUES = [
-  // 2 Starters (Given directly to starting hands)
-  { id: "c_intern", type: "COLLEAGUE", name: "Junior Intern", cost: 1, velocity: 1, skill: "DESIGN", traitCost: 0, emoji: "☕", trait: "Coffee Run: Draw 1 Item from the market into hand for FREE.", desc: "🎨 Design. Fast starter hero." },
-  { id: "c_apprentice", type: "COLLEAGUE", name: "Systems Apprentice", cost: 1, velocity: 1, skill: "SYSTEMS", traitCost: 1, emoji: "💻", trait: "Pair Refactor: Grant +2 Velocity to another colleague on this ticket.", desc: "⚙️ Systems. Foundational pair programmer." },
-
-  // The Main Colleague Deck (Multiple copies for balanced draw probability)
-  { id: "c_backend_1", type: "COLLEAGUE", name: "Systems Architect", cost: 2, velocity: 2, skill: "SYSTEMS", traitCost: 1, emoji: "🛠️", trait: "Server Boost: +2 permanent Velocity on Systems tickets.", desc: "⚙️ Systems. Database & infrastructure muscle." },
-  { id: "c_backend_2", type: "COLLEAGUE", name: "Systems Architect", cost: 2, velocity: 2, skill: "SYSTEMS", traitCost: 1, emoji: "🛠️", trait: "Server Boost: +2 permanent Velocity on Systems tickets.", desc: "⚙️ Systems. Database & infrastructure muscle." },
-  { id: "c_qa_1", type: "COLLEAGUE", name: "QA Analyst", cost: 2, velocity: 1, skill: "LOGIC", traitCost: 1, emoji: "🔍", trait: "Unit Assert: Re-roll a low deployment spark roll (1 or 2).", desc: "🔒 Logic. Intercepts edge cases." },
-  { id: "c_qa_2", type: "COLLEAGUE", name: "QA Analyst", cost: 2, velocity: 1, skill: "LOGIC", traitCost: 1, emoji: "🔍", trait: "Unit Assert: Re-roll a low deployment spark roll (1 or 2).", desc: "🔒 Logic. Intercepts edge cases." },
-  { id: "c_designer_1", type: "COLLEAGUE", name: "UX Lead", cost: 2, velocity: 2, skill: "DESIGN", traitCost: 1, emoji: "🎨", trait: "Wireframe: Lower next Design project complexity by 1.", desc: "🎨 Design. Creative interface specialist." },
-  { id: "c_hacker_1", type: "COLLEAGUE", name: "Security Hacker", cost: 2, velocity: 2, skill: "LOGIC", traitCost: 1, emoji: "🦉", trait: "Zero-Day: Ignore 1 skill requirement on a project.", desc: "🔒 Logic. Bypasses security firewalls." },
-  { id: "c_lead_1", type: "COLLEAGUE", name: "Principal Dev", cost: 3, velocity: 4, skill: "SYSTEMS", traitCost: 2, emoji: "🚀", trait: "Crunch Sprint: Ready 1 exhausted colleague immediately.", desc: "⚙️ Systems. High raw compute velocity." },
-  { id: "c_lead_2", type: "COLLEAGUE", name: "Principal Dev", cost: 3, velocity: 4, skill: "SYSTEMS", traitCost: 2, emoji: "🚀", trait: "Crunch Sprint: Ready 1 exhausted colleague immediately.", desc: "⚙️ Systems. High raw compute velocity." }
-];
-
-const MASTER_ITEMS = [
-  { id: "i_loop_1", type: "ITEM", name: "for...of Loop", cost: 1, emoji: "🔁", effect: "DOUBLE_VELOCITY", desc: "One-Off (FREE TO PLAY): Doubles 1 colleague's Velocity on this ticket." },
-  { id: "i_loop_2", type: "ITEM", name: "for...of Loop", cost: 1, emoji: "🔁", effect: "DOUBLE_VELOCITY", desc: "One-Off (FREE TO PLAY): Doubles 1 colleague's Velocity on this ticket." },
-  { id: "i_catch_1", type: "ITEM", name: "try / catch Block", cost: 1, emoji: "🦺", effect: "SHIELD_FAIL", desc: "One-Off (FREE TO PLAY): Completely shields from penalty if ticket fails." },
-  { id: "i_catch_2", type: "ITEM", name: "try / catch Block", cost: 1, emoji: "🦺", effect: "SHIELD_FAIL", desc: "One-Off (FREE TO PLAY): Completely shields from penalty if ticket fails." },
-  { id: "i_async_1", type: "ITEM", name: "Async Worker", cost: 2, emoji: "⏱️", effect: "PREVENT_EXHAUST", desc: "One-Off (FREE TO PLAY): Target colleague does not exhaust after delivery." },
-  { id: "i_refactor_1", type: "ITEM", name: "Hotfix Patch", cost: 1, emoji: "🩹", effect: "LOWER_COMPLEXITY", desc: "One-Off (FREE TO PLAY): Lowers ticket Complexity by 2." },
-  { id: "i_espresso_1", type: "ITEM", name: "Espresso Rig", cost: 2, emoji: "☕", effect: "COFFEE_STASH", desc: "One-Off (FREE TO PLAY): Immediately gain 1 Coffee Cup token." }
-];
-
-const MASTER_TASKS = [
-  { id: "t_full", type: "TASK", name: "Full-Stack Agency", reward: 2, emoji: "🎯", req: "Have 🎨, ⚙️, and 🔒 active in office.", check: (p) => { const s = p.office.map(w => w.skill); return s.includes("DESIGN") && s.includes("SYSTEMS") && s.includes("LOGIC"); } },
-  { id: "t_scale", type: "TASK", name: "Scaled Squad", reward: 2, emoji: "👥", req: "Have 4+ active staff in office.", check: (p) => p.office.length >= 4 },
-  { id: "t_cache", type: "TASK", name: "Item Stash", reward: 1, emoji: "⚡", req: "Hold 2+ Coding Items in Hand.", check: (p) => p.hand.filter(c => c.type === 'ITEM').length >= 2 }
-];
-
-// Tier 1 & 2 Standard Projects
-const TIER_1_2_PROJECTS = [
-  { id: "p_logo_1", type: "PROJECT", name: "CSS Logo Refactor", complexity: 3, reqSkill: "DESIGN", reward: 1, penalty: "Client rejects: No penalty.", emoji: "🎨" },
-  { id: "p_logo_2", type: "PROJECT", name: "Mobile UI Polish", complexity: 3, reqSkill: "DESIGN", reward: 1, penalty: "Client rejects: No penalty.", emoji: "📱" },
-  { id: "p_store_1", type: "PROJECT", name: "Storefront API", complexity: 4, reqSkill: "SYSTEMS", reward: 1, penalty: "Buffer leak: Lose 1 Coffee Token.", emoji: "🧁" },
-  { id: "p_link_1", type: "PROJECT", name: "Broken Route Hotfix", complexity: 4, reqSkill: "LOGIC", reward: 1, penalty: "Redirect timeout: No penalty.", emoji: "🔗" },
-  { id: "p_shop_1", type: "PROJECT", name: "Black Friday Checkout", complexity: 6, reqSkill: "SYSTEMS", reward: 2, penalty: "Server crash: Lose 1 Coffee Token.", emoji: "🛍️" },
-  { id: "p_auth_1", type: "PROJECT", name: "OAuth Gateway", complexity: 7, reqSkill: "LOGIC", reward: 3, penalty: "Auth breach: -1 Action next turn.", emoji: "🔐" }
-];
-
-// Tier 3 Super Projects (Introduced to deck on Turn 3)
-const SUPER_PROJECTS = [
-  { id: "sp_bank", type: "SUPER_PROJECT", name: "Legacy Core Migration", complexity: 9, reqSkill: "SYSTEMS_LOGIC", reward: 5, penalty: "DISASTER: 1 Active Colleague burns out & quits!", emoji: "🏛️" },
-  { id: "sp_cloud", type: "SUPER_PROJECT", name: "Global Cloud Crash", complexity: 10, reqSkill: "FULL_STACK", reward: 6, penalty: "PR CATASTROPHE: Lose 2 Kudos (⭐)!", emoji: "⚡" }
-];
+const DB = {
+  colleagues: [
+    { id: "c_intern", name: "Junior Intern", cost: 1, velocity: 1, skill: "DESIGN", emoji: "☕", traitCost: 0, trait: "Coffee Run: Draw 1 Item from market for FREE.", desc: "Fast, cheap extra hands." },
+    { id: "c_apprentice", name: "Systems Apprentice", cost: 1, velocity: 1, skill: "SYSTEMS", emoji: "💻", traitCost: 1, trait: "Pair Refactor: +2 Velocity to this ticket.", desc: "Eager pair programmer." },
+    { id: "c_backend", name: "Systems Architect", cost: 2, velocity: 2, skill: "SYSTEMS", emoji: "🛠️", traitCost: 1, trait: "Server Boost: +2 permanent Velocity.", desc: "Heavy database muscle." },
+    { id: "c_qa", name: "QA Analyst", cost: 2, velocity: 1, skill: "LOGIC", emoji: "🔍", traitCost: 1, trait: "Unit Assert: Re-roll low deployment sparks.", desc: "Intercepts edge cases." },
+    { id: "c_lead", name: "Principal Dev", cost: 3, velocity: 4, skill: "SYSTEMS", emoji: "🚀", traitCost: 2, trait: "Crunch Sprint: Ready 1 exhausted colleague.", desc: "Massive compute firepower." },
+    { id: "c_hacker", name: "Security Hacker", cost: 2, velocity: 2, skill: "LOGIC", emoji: "🦉", traitCost: 1, trait: "Zero-Day: Ignore 1 skill requirement.", desc: "Bypasses firewalls." }
+  ],
+  items: [
+    { id: "i_loop", name: "for...of Loop", cost: 1, emoji: "🔁", effect: "DOUBLE_VELOCITY", desc: "Doubles 1 target colleague's Velocity." },
+    { id: "i_catch", name: "try / catch Block", cost: 1, emoji: "🦺", effect: "SHIELD_FAIL", desc: "Shields project from crash penalties." },
+    { id: "i_async", name: "Async Worker", cost: 2, emoji: "⏱️", effect: "PREVENT_EXHAUST", desc: "Target colleague does not exhaust." },
+    { id: "i_refactor", name: "Hotfix Patch", cost: 1, emoji: "🩹", effect: "LOWER_COMPLEXITY", desc: "Lowers target ticket Complexity by 2." },
+    { id: "i_espresso", name: "Espresso Rig", cost: 2, emoji: "☕", effect: "COFFEE_STASH", desc: "Gain 1 Coffee Cup token instantly." }
+  ],
+  tasks: [
+    { id: "t_full", name: "Full-Stack Agency", reward: 2, emoji: "🎯", req: "Have 🎨, ⚙️, and 🔒 active in office." },
+    { id: "t_scale", name: "Scaled Squad", reward: 2, emoji: "👥", req: "Have 4+ active staff in office." },
+    { id: "t_cache", name: "Item Stash", reward: 1, emoji: "⚡", req: "Hold 2+ Items in Hand." }
+  ],
+  projects: [
+    { id: "p_logo", name: "CSS Logo Refactor", complexity: 3, reqSkill: "DESIGN", reward: 1, penalty: "Client rejects: No penalty.", emoji: "🎨", type: "PROJECT" },
+    { id: "p_store", name: "Storefront Endpoint", complexity: 4, reqSkill: "SYSTEMS", reward: 1, penalty: "Buffer leak: Lose 1 Coffee.", emoji: "🧁", type: "PROJECT" },
+    { id: "p_shop", name: "Black Friday Checkout", complexity: 6, reqSkill: "SYSTEMS", reward: 2, penalty: "Server crash: Lose 1 Coffee.", emoji: "🛍️", type: "PROJECT" },
+    { id: "p_auth", name: "OAuth Gateway", complexity: 7, reqSkill: "LOGIC", reward: 3, penalty: "Auth breach: -1 Action next turn.", emoji: "🔐", type: "PROJECT" },
+    { id: "sp_bank", name: "Legacy Core Migration", complexity: 9, reqSkill: "SYSTEMS_LOGIC", reward: 5, penalty: "DISASTER: Discard 1 Active Colleague!", emoji: "🏛️", type: "SUPER_PROJECT" },
+    { id: "sp_cloud", name: "Global Cloud Crash", complexity: 10, reqSkill: "FULL_STACK", reward: 6, penalty: "PR CATASTROPHE: Lose 2 Kudos!", emoji: "⚡", type: "SUPER_PROJECT" }
+  ]
+};
 
 /* ==========================================================================
-   TRUE UNBIASED KNUTH / FISHER-YATES SHUFFLE ALGORITHM
-   ========================================================================== */
-function fisherYatesShuffle(array) {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-/* ==========================================================================
-   GAME ENGINE STATE
+   STATE MACHINE
    ========================================================================== */
 const state = {
-  round: 1,
-  active: 0,
+  mode: 'IDLE', // 'IDLE', 'TARGET_ITEM', 'TARGET_COFFEE', 'TARGET_DISCARD'
+  pendingItem: null,
+  activeItemEffects: [], // Stores active effects for the current project attempt
+  
   players: [
-    { score: 0, energy: 3, coffee: 0, hand: [], office: [], committed: [], milestone3Claimed: false, milestone7Claimed: false },
-    { score: 0, energy: 3, coffee: 0, hand: [], office: [], committed: [], milestone3Claimed: false, milestone7Claimed: false }
+    { score: 0, energy: 3, coffee: 0, hand: [], office: [] },
+    { score: 0, energy: 3, coffee: 0, hand: [], office: [] }
   ],
-  decks: {
-    colleagues: [],
-    colleagueDiscard: [],
-    items: [],
-    itemDiscard: [],
-    projects: []
-  },
-  marketColleagues: [],
-  marketItems: [],
-  marketTasks: [],
-  projects: [],
-  armedConstruct: null
+  market: { colleagues: [], items: [], tasks: [] },
+  projects: []
 };
+
+// Utils
+const clone = (obj) => JSON.parse(JSON.stringify(obj));
+const randItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const fisherYates = (arr) => { let a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 
 function log(msg) {
   const l = document.getElementById("game-log");
-  l.innerHTML = `<div>> ${msg}</div>` + l.innerHTML;
+  l.innerHTML = `<div><strong>></strong> ${msg}</div>` + l.innerHTML;
 }
 
 function initGame() {
-  state.round = 1;
-  state.players[0].office = [];
-  state.players[1].office = [];
-
-  // Starting Hand: Exactly 2 Heroes
-  state.players[0].hand = [
-    { ...MASTER_COLLEAGUES[0] },
-    { ...MASTER_COLLEAGUES[1] }
-  ];
-  state.players[1].hand = [
-    { ...MASTER_COLLEAGUES[0] },
-    { ...MASTER_COLLEAGUES[1] }
-  ];
-
-  // 1. Prepare and Shuffle Colleague Deck (excluding starters)
-  state.decks.colleagues = fisherYatesShuffle(MASTER_COLLEAGUES.slice(2));
-  state.decks.colleagueDiscard = [];
-
-  // 2. Prepare and Shuffle Item Deck
-  state.decks.items = fisherYatesShuffle(MASTER_ITEMS);
-  state.decks.itemDiscard = [];
-
-  // 3. Prepare Projects: Early rounds start with Tier 1/2
-  const initialProjects = fisherYatesShuffle(TIER_1_2_PROJECTS);
-  state.projects = [initialProjects.pop(), initialProjects.pop(), initialProjects.pop()];
+  state.players[0].hand = [clone(DB.colleagues[0]), clone(DB.colleagues[1])];
+  state.players[1].hand = [clone(DB.colleagues[0]), clone(DB.colleagues[1])];
   
-  // Remaining Tier 1/2 become the draw pile; Super Projects wait for Turn 3
-  state.decks.projects = initialProjects;
-
-  // 4. Fill initial 3x3 Market from top of shuffled decks
-  state.marketColleagues = [drawCard('colleagues'), drawCard('colleagues'), drawCard('colleagues')];
-  state.marketItems = [drawCard('items'), drawCard('items'), drawCard('items')];
-  state.marketTasks = [...MASTER_TASKS];
-
+  state.market.colleagues = [clone(DB.colleagues[2]), clone(DB.colleagues[3]), clone(DB.colleagues[4])];
+  state.market.items = [clone(DB.items[0]), clone(DB.items[1]), clone(DB.items[3])];
+  state.market.tasks = [clone(DB.tasks[0]), clone(DB.tasks[1]), clone(DB.tasks[2])];
+  state.projects = [clone(DB.projects[0]), clone(DB.projects[1]), clone(DB.projects[4])]; // Mixed tiers
+  
   render();
-}
-
-function drawCard(deckName) {
-  let deck = state.decks[deckName];
-  if (deck.length === 0) {
-    // Reshuffle discard into deck if empty
-    if (deckName === 'colleagues' && state.decks.colleagueDiscard.length > 0) {
-      log("Reshuffling Colleague discard pile into draw deck.");
-      state.decks.colleagues = fisherYatesShuffle(state.decks.colleagueDiscard);
-      state.decks.colleagueDiscard = [];
-      deck = state.decks.colleagues;
-    } else if (deckName === 'items' && state.decks.itemDiscard.length > 0) {
-      log("Reshuffling Item discard pile into draw deck.");
-      state.decks.items = fisherYatesShuffle(state.decks.itemDiscard);
-      state.decks.itemDiscard = [];
-      deck = state.decks.items;
-    } else {
-      return null;
-    }
-  }
-  return deck.pop();
-}
-
-function drawProjectCard() {
-  if (state.decks.projects.length === 0) return null;
-  return state.decks.projects.pop();
-}
-
-function dismissSplashAndPlay() {
-  document.getElementById("splash-screen").style.display = "none";
-  log("Sprint started! Deploy starting heroes for FREE (0 Actions).");
-}
-
-function dismissSplashAndTour() {
-  document.getElementById("splash-screen").style.display = "none";
-  startInteractiveTour();
+  log("Sprint Started! You have 3 Actions (⚡). Deploying to office is FREE.");
 }
 
 /* ==========================================================================
@@ -706,646 +314,410 @@ function dismissSplashAndTour() {
    ========================================================================== */
 function render() {
   const p0 = state.players[0];
-  const p1 = state.players[1];
+  
+  // HUD
+  document.getElementById("ui-kudos").innerText = p0.score;
+  document.getElementById("ui-energy").innerText = p0.energy;
+  document.getElementById("ui-coffee").innerText = p0.coffee;
+  document.getElementById("ui-hand-count").innerText = p0.hand.length;
+  document.getElementById("player-office-count").innerText = p0.office.length;
+  document.getElementById("ai-office-count").innerText = state.players[1].office.length;
+  
+  let totalVel = p0.office.filter(w=>w.committed).reduce((sum, w) => sum + w.velocity, 0);
+  document.getElementById("ui-velocity").innerText = totalVel;
 
-  document.getElementById("p0-score").innerText = p0.score;
-  document.getElementById("ai-score").innerText = p1.score;
-  document.getElementById("track-p0").style.width = `${Math.min(100, (p0.score / 10) * 100)}%`;
-  document.getElementById("track-ai").style.width = `${Math.min(100, (p1.score / 10) * 100)}%`;
+  document.getElementById("btn-end-turn").disabled = (state.mode !== 'IDLE');
 
-  document.getElementById("p0-energy").innerText = p0.energy;
-  document.getElementById("coffee-stash-count").innerText = p0.coffee;
-  document.getElementById("ai-energy").innerText = p1.energy;
-  document.getElementById("ai-count").innerText = p1.office.length;
-  document.getElementById("player-count").innerText = p0.office.length;
-  document.getElementById("hand-count").innerText = p0.hand.length;
+  // Targeting Banner
+  const banner = document.getElementById("instruction-banner");
+  if (state.mode === 'TARGET_COFFEE') { banner.style.display = 'flex'; banner.innerText = "☕ SELECT AN EXHAUSTED COLLEAGUE TO REVIVE"; document.body.className = 'targeting-mode'; }
+  else if (state.mode === 'TARGET_DISCARD') { banner.style.display = 'flex'; banner.innerText = "🔥 PENALTY: SELECT A COLLEAGUE TO DISCARD"; document.body.className = 'targeting-mode'; }
+  else if (state.mode === 'TARGET_ITEM') { banner.style.display = 'flex'; banner.innerText = `🎯 SELECT TARGET FOR ${state.pendingItem.name.toUpperCase()}`; document.body.className = 'targeting-mode'; }
+  else { banner.style.display = 'none'; document.body.className = ''; }
 
-  document.getElementById("colleague-deck-count").innerText = state.decks.colleagues.length;
-  document.getElementById("item-deck-count").innerText = state.decks.items.length;
-  document.getElementById("project-deck-count").innerText = state.decks.projects.length;
-
+  // --- RENDER ZONES ---
+  
   // Projects
-  document.getElementById("projects-container").innerHTML = state.projects.map((proj, idx) => `
-    <div class="card ${proj.type === 'SUPER_PROJECT' ? 'super-card' : ''}" onclick="attemptProject(${idx})">
-      <div class="card-plate"><span class="card-plate-icon">${proj.emoji}</span></div>
-      <div>
-        <div style="font-size:0.58rem; font-weight:800; color:${proj.type === 'SUPER_PROJECT' ? '#ef4444' : '#f59e0b'};">
-          ${proj.type === 'SUPER_PROJECT' ? 'SUPER PROJECT' : 'PROJECT'}
-        </div>
-        <div class="card-title">${proj.name}</div>
-        <div class="card-meta">Req: <strong>${proj.reqSkill}</strong></div>
+  document.getElementById("projects-container").innerHTML = state.projects.map((p, i) => {
+    let classes = `card ${p.type === 'SUPER_PROJECT' ? 'super-project' : ''}`;
+    if (state.mode === 'TARGET_ITEM' && ['LOWER_COMPLEXITY', 'SHIELD_FAIL'].includes(state.pendingItem.effect)) classes += ' target-valid';
+    
+    return `
+    <div class="${classes}" onclick="handleCardClick('PROJECT', ${i})">
+      <div class="card-header"><span>${p.emoji}</span><span class="card-type">${p.type === 'SUPER_PROJECT' ? 'SUPER PROJECT' : 'PROJECT'}</span></div>
+      <div class="card-title">${p.name}</div>
+      <div class="card-desc">Req: <strong>${p.reqSkill}</strong></div>
+      <div class="card-footer">
+        <span>${p.complexity} SP</span>
+        <span style="color:var(--gold);">⭐ +${p.reward}</span>
       </div>
-      <div class="card-stat-box">
-        <span>${proj.complexity} SP</span>
-        <span style="color:var(--gold);">⭐ +${proj.reward}</span>
-      </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
-  // 3x3 Market
-  document.getElementById("market-colleagues").innerHTML = state.marketColleagues.map((c, i) => c ? `
-    <div class="card" onclick="openShowcase('COLLEAGUE', ${i})">
-      <div class="card-plate"><span class="card-plate-icon">${c.emoji}</span></div>
-      <div>
-        <span class="tag tag-${c.skill.toLowerCase()}">${c.skill}</span>
-        <div class="card-title" style="margin-top:2px;">${c.name}</div>
-      </div>
-      <div class="card-stat-box">
-        <span style="color:var(--p1);">+${c.velocity} SP</span>
-        <span>⚡ ${c.cost}</span>
-      </div>
-    </div>
-  ` : `<div class="card" style="opacity:0.3; justify-content:center; align-items:center;">Empty</div>`).join('');
+  // Market
+  document.getElementById("market-colleagues").innerHTML = state.market.colleagues.map((c, i) => renderCardHTML(c, 'MARKET_COLL', i)).join('');
+  document.getElementById("market-items").innerHTML = state.market.items.map((c, i) => renderCardHTML(c, 'MARKET_ITEM', i)).join('');
+  document.getElementById("market-tasks").innerHTML = state.market.tasks.map((c, i) => renderCardHTML(c, 'MARKET_TASK', i)).join('');
 
-  document.getElementById("market-items").innerHTML = state.marketItems.map((item, i) => item ? `
-    <div class="card" style="border-color:#a855f7;" onclick="openShowcase('ITEM', ${i})">
-      <div class="card-plate"><span class="card-plate-icon">${item.emoji}</span></div>
-      <div>
-        <div class="card-title">${item.name}</div>
-        <div class="card-meta">FREE TO PLAY</div>
-      </div>
-      <div class="card-stat-box">
-        <span>CONSTRUCT</span>
-        <span>⚡ ${item.cost}</span>
-      </div>
-    </div>
-  ` : `<div class="card" style="opacity:0.3; justify-content:center; align-items:center;">Empty</div>`).join('');
-
-  document.getElementById("market-tasks").innerHTML = state.marketTasks.map((t, i) => `
-    <div class="card" style="border-color:#f59e0b;" onclick="openShowcase('TASK', ${i})">
-      <div class="card-plate"><span class="card-plate-icon">${t.emoji}</span></div>
-      <div>
-        <div class="card-title">${t.name}</div>
-        <div class="card-meta">Objective</div>
-      </div>
-      <div class="card-stat-box">
-        <span>CLAIM</span>
-        <span style="color:var(--gold);">⭐ +${t.reward}</span>
-      </div>
-    </div>
-  `).join('');
-
-  // Player Office
-  document.getElementById("player-office-container").innerHTML = p0.office.length === 0 
-    ? `<div style="grid-column:span 4; padding:16px; text-align:center; color:#64748b; font-size:0.75rem; border:2px dashed #1e2d4d; border-radius:8px;">
-        Office Terminal Empty.<br>Click a colleague in your <strong>Hand</strong> below to <strong>Deploy (FREE - 0 Actions)</strong>!
-       </div>`
-    : p0.office.map((w, idx) => {
-      const isCommitted = p0.committed.some(c => c.index === idx);
-      return `
-        <div class="card ${w.exhausted ? 'exhausted' : ''} ${isCommitted ? 'committed' : ''}" onclick="openCommitShowcase(${idx})">
-          <div class="card-plate"><span class="card-plate-icon">${w.emoji}</span></div>
-          <div>
-            <span class="tag tag-${w.skill.toLowerCase()}">${w.skill}</span>
-            <div class="card-title" style="margin-top:2px;">${w.name}</div>
-          </div>
-          <div class="card-stat-box">
-            <span style="color:var(--p1);">+${w.velocity} SP</span>
-            <span style="font-size:0.62rem; color:#94a3b8;">${w.exhausted ? '😴 Rest' : (isCommitted ? '✅ Lock' : 'Ready')}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
+  // Offices
+  document.getElementById("player-office-container").innerHTML = p0.office.map((c, i) => renderCardHTML(c, 'OFFICE', i)).join('');
+  document.getElementById("ai-office-container").innerHTML = state.players[1].office.map(c => `
+    <div class="card ${c.exhausted ? 'exhausted' : ''}">
+      <div class="card-header"><span>${c.emoji}</span></div>
+      <div class="card-title">${c.name}</div>
+      <div class="card-footer"><span>+${c.velocity} SP</span></div>
+    </div>`).join('');
 
   // Hand
-  document.getElementById("player-hand-container").innerHTML = p0.hand.map((card, idx) => `
-    <div class="card hand-card" onclick="openHandShowcase(${idx})">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span>${card.emoji}</span>
-        <span style="font-size:0.58rem; color:#94a3b8;">${card.type}</span>
-      </div>
-      <div class="card-title" style="font-size:0.7rem;">${card.name}</div>
-      <div style="font-size:0.58rem; color:#34d399; font-weight:700;">FREE to Play ➔</div>
-    </div>
-  `).join('');
+  document.getElementById("player-hand-container").innerHTML = p0.hand.map((c, i) => renderCardHTML(c, 'HAND', i)).join('');
+}
 
-  // AI Office
-  document.getElementById("ai-office-container").innerHTML = p1.office.length === 0
-    ? `<div style="grid-column:span 4; padding:16px; text-align:center; color:#64748b; font-size:0.75rem; border:2px dashed #1e2d4d; border-radius:8px;">
-        Rival Office Empty. Preparing sprint...
-       </div>`
-    : p1.office.map(w => `
-        <div class="card ${w.exhausted ? 'exhausted' : ''}">
-          <div class="card-plate"><span class="card-plate-icon">${w.emoji}</span></div>
-          <div><div class="card-title">${w.name}</div></div>
-          <div class="card-stat-box">
-            <span>+${w.velocity} SP</span>
-            <span style="font-size:0.62rem; color:#94a3b8;">${w.exhausted ? '😴' : '⚡'}</span>
-          </div>
-        </div>
-      `).join('');
+function renderCardHTML(card, context, index) {
+  let classes = "card";
+  if (card.exhausted) classes += " exhausted";
+  if (card.committed) classes += " committed";
+
+  // Targeting logic
+  if (state.mode === 'TARGET_COFFEE' && context === 'OFFICE' && card.exhausted) classes += " target-valid";
+  if (state.mode === 'TARGET_DISCARD' && context === 'OFFICE') classes += " target-valid";
+  if (state.mode === 'TARGET_ITEM' && context === 'OFFICE' && ['DOUBLE_VELOCITY', 'PREVENT_EXHAUST'].includes(state.pendingItem.effect)) classes += " target-valid";
+
+  // Skill Tag
+  let tag = card.skill ? `<span class="tag tag-${card.skill.toLowerCase()}">${card.skill}</span>` : `<span class="card-type">${card.type}</span>`;
+  
+  // Footer
+  let footer = '';
+  if (context.startsWith('MARKET')) footer = `<span>⚡ ${card.cost} Action</span>`;
+  else if (context === 'HAND') footer = `<span style="color:var(--p1);">Inspect ➔</span>`;
+  else if (context === 'OFFICE') footer = `<span style="color:var(--p1);">+${card.velocity} SP</span><span style="color:#94a3b8;">${card.exhausted ? '😴' : (card.committed ? '✅' : 'Ready')}</span>`;
+
+  return `
+    <div class="${classes}" onclick="handleCardClick('${context}', ${index})">
+      <div class="card-header"><span>${card.emoji}</span>${tag}</div>
+      <div class="card-title">${card.name}</div>
+      ${context === 'HAND' ? `<div class="card-desc">${card.desc}</div>` : ''}
+      <div class="card-footer">${footer}</div>
+    </div>
+  `;
 }
 
 /* ==========================================================================
-   ACTIONS & MODALS
+   INTERACTION ROUTER & TARGETING LOGIC
    ========================================================================== */
-function closeModal() { document.getElementById("card-modal").style.display = "none"; }
-
-function openCommitShowcase(idx) {
-  const p = state.players[0];
-  const w = p.office[idx];
-  if (w.exhausted) {
-    log("That colleague is exhausted! Use an earned Coffee Token to ready them.");
+function handleCardClick(zone, index) {
+  if (state.mode !== 'IDLE') {
+    handleTargetingClick(zone, index);
     return;
   }
-
-  const existingIdx = p.committed.findIndex(c => c.index === idx);
-  if (existingIdx !== -1) {
-    p.committed.splice(existingIdx, 1);
-    render();
-    return;
-  }
-
-  const m = document.getElementById("modal-content");
-  m.innerHTML = `
-    <div class="showcase-art"><span>${w.emoji}</span></div>
-    <div>
-      <span class="tag tag-${w.skill.toLowerCase()}">${w.skill}</span>
-      <h2 style="margin:4px 0 0 0; color:var(--p1); font-size:1.2rem;">${w.name}</h2>
-      <div style="font-size:0.75rem; color:#94a3b8;">Colleague • Base Velocity: +${w.velocity} SP</div>
-    </div>
-    <p style="font-size:0.8rem; color:#cbd5e1; line-height:1.4; margin:0;">${w.desc}</p>
-
-    <div style="background:#070d1a; padding:10px; border-radius:8px; border:1px solid #1e2c4a;">
-      <div style="font-size:0.7rem; font-weight:800; color:#94a3b8; margin-bottom:6px;">TACTICAL COMMITMENT (FAME & FABLE RULES):</div>
-      <button class="btn btn-modal" style="background:#2563eb;" onclick="confirmCommit(${idx}, 'VELOCITY')">
-        ⚡ Basic Attack: +${w.velocity} Velocity (FREE - 0 Actions, Leaves Exhausted)
-      </button>
-      <button class="btn btn-modal" style="background:#a855f7; margin-top:6px;" onclick="confirmCommit(${idx}, 'TRAIT')">
-        ✨ Use Trait: "${w.trait}" (Costs ⚡ ${w.traitCost} Actions)
-      </button>
-    </div>
-    <button class="btn" style="background:#334155;" onclick="closeModal()">Cancel</button>
-  `;
-  document.getElementById("card-modal").style.display = "flex";
+  
+  // IDLE Mode: Open Contextual Modals
+  if (zone.startsWith('MARKET')) openModal(zone, index);
+  else if (zone === 'HAND') openModal(zone, index);
+  else if (zone === 'OFFICE') openModal(zone, index);
+  else if (zone === 'PROJECT') openModal(zone, index);
 }
 
-function confirmCommit(idx, mode) {
-  const p = state.players[0];
-  const w = p.office[idx];
+function handleTargetingClick(zone, index) {
+  const p0 = state.players[0];
 
-  if (mode === 'TRAIT' && p.energy < w.traitCost) {
-    alert(`Not enough actions! This trait requires ⚡ ${w.traitCost} Actions.`);
-    return;
+  if (state.mode === 'TARGET_COFFEE') {
+    if (zone !== 'OFFICE') return;
+    const worker = p0.office[index];
+    if (!worker.exhausted) return;
+    
+    worker.exhausted = false;
+    p0.coffee -= 1;
+    log(`☕ Revived **${worker.name}**!`);
+    resetState();
+  } 
+  
+  else if (state.mode === 'TARGET_DISCARD') {
+    if (zone !== 'OFFICE') return;
+    const worker = p0.office.splice(index, 1)[0];
+    log(`🔥 Penalty executed: **${worker.name}** was discarded.`);
+    resetState();
   }
-  if (mode === 'TRAIT') p.energy -= w.traitCost;
 
-  p.committed.push({ index: idx, mode: mode });
-  closeModal();
-  render();
-  log(`Assigned **${w.name}** for **${mode === 'VELOCITY' ? 'Basic Velocity Attack (FREE)' : 'Trait'}**.`);
-}
-
-function openShowcase(cat, idx) {
-  const item = cat === 'COLLEAGUE' ? state.marketColleagues[idx] : (cat === 'ITEM' ? state.marketItems[idx] : state.marketTasks[idx]);
-  if (!item) return;
-
-  const m = document.getElementById("modal-content");
-  m.innerHTML = `
-    <div class="showcase-art"><span>${item.emoji}</span></div>
-    <div>
-      <h2 style="margin:0; font-size:1.2rem;">${item.name}</h2>
-      <div style="font-size:0.75rem; color:#94a3b8;">${item.type}</div>
-    </div>
-    <p style="font-size:0.8rem; color:#cbd5e1; line-height:1.4; margin:0;">${item.desc || item.req}</p>
-
-    ${item.type === 'TASK'
-      ? `<button class="btn btn-modal" style="background:var(--gold); color:#000;" onclick="claimTask(${idx})">Claim Bounty (⭐ +${item.reward} Kudos)</button>`
-      : `<button class="btn btn-modal" onclick="buyCardToHand('${cat}', ${idx})">Recruit to Hand (Costs ⚡ ${item.cost} Actions)</button>`
+  else if (state.mode === 'TARGET_ITEM') {
+    const effect = state.pendingItem.effect;
+    
+    if (['DOUBLE_VELOCITY', 'PREVENT_EXHAUST'].includes(effect)) {
+      if (zone !== 'OFFICE') return;
+      state.activeItemEffects.push({ targetIndex: index, effect: effect, sourceItem: state.pendingItem });
+      log(`🎯 Armed **${state.pendingItem.name}** on **${p0.office[index].name}** for the next delivery.`);
+    } 
+    else if (['LOWER_COMPLEXITY', 'SHIELD_FAIL'].includes(effect)) {
+      if (zone !== 'PROJECT') return;
+      state.activeItemEffects.push({ targetProjectIdx: index, effect: effect, sourceItem: state.pendingItem });
+      log(`🎯 Armed **${state.pendingItem.name}** on **${state.projects[index].name}**.`);
     }
-    <button class="btn" style="background:#334155;" onclick="closeModal()">Close</button>
-  `;
-  document.getElementById("card-modal").style.display = "flex";
+    
+    // Remove item from hand
+    p0.hand = p0.hand.filter(c => c !== state.pendingItem);
+    resetState();
+  }
 }
 
-function openHandShowcase(idx) {
-  const card = state.players[0].hand[idx];
-  const m = document.getElementById("modal-content");
-
-  m.innerHTML = `
-    <div class="showcase-art"><span>${card.emoji}</span></div>
-    <div>
-      <h2 style="margin:0; font-size:1.2rem;">${card.name}</h2>
-      <div style="font-size:0.75rem; color:#94a3b8;">${card.type}</div>
-    </div>
-    <p style="font-size:0.8rem; color:#cbd5e1; line-height:1.4; margin:0;">${card.desc}</p>
-
-    ${card.type === 'COLLEAGUE'
-      ? `<button class="btn btn-modal" style="background:#10b981;" onclick="deployColleagueFromHand(${idx})">Deploy to Office (FREE - 0 Actions)</button>`
-      : `<button class="btn btn-modal" style="background:#c084fc;" onclick="armConstruct(${idx})">Use Item on Next Delivery (FREE - 0 Actions)</button>`
-    }
-    <button class="btn" style="background:#334155;" onclick="closeModal()">Close</button>
-  `;
-  document.getElementById("card-modal").style.display = "flex";
-}
-
-function buyCardToHand(cat, idx) {
-  const p = state.players[0];
-  const card = cat === 'COLLEAGUE' ? state.marketColleagues[idx] : state.marketItems[idx];
-
-  if (p.hand.length >= 6) {
-    alert("Hand Limit Reached! (Max 6 Cards in Hand).");
+function cancelAction() {
+  if (state.mode === 'TARGET_DISCARD') {
+    alert("You must select a colleague to discard!");
     return;
   }
-  if (p.energy < card.cost) {
-    alert(`Not enough Actions! Recruiting this card requires ⚡ ${card.cost} Actions.`);
-    return;
-  }
-
-  p.energy -= card.cost;
-  p.hand.push({ ...card });
-  closeModal();
-
-  // Draw replacement from top of shuffled deck
-  if (cat === 'COLLEAGUE') {
-    state.marketColleagues[idx] = drawCard('colleagues');
-  } else {
-    state.marketItems[idx] = drawCard('items');
-  }
-
-  render();
-  log(`Recruited **${card.name}** into Hand.`);
+  document.getElementById("modal-backdrop").style.display = "none";
+  resetState();
 }
 
-function deployColleagueFromHand(idx) {
-  const p = state.players[0];
-  if (p.office.length >= 6) {
-    alert("Office Limit Reached! (Max 6 Staff in Play Area).");
-    return;
-  }
-
-  const col = p.hand.splice(idx, 1)[0];
-  p.office.push({ ...col, exhausted: false });
-  closeModal();
-  render();
-  log(`Deployed **${col.name}** to Office (FREE).`);
-}
-
-function armConstruct(idx) {
-  const p = state.players[0];
-  const item = p.hand.splice(idx, 1)[0];
-
-  if (item.effect === "COFFEE_STASH") {
-    p.coffee += 1;
-    log("☕ Espresso Rig played: Gained 1 Coffee Token!");
-  } else {
-    state.armedConstruct = item;
-    log(`Armed Construct: **${item.name}** is active for next delivery (FREE)!`);
-  }
-  state.decks.itemDiscard.push(item);
-  closeModal();
+function resetState() {
+  state.mode = 'IDLE';
+  state.pendingItem = null;
   render();
 }
 
-function spendCoffeeToken() {
-  const p = state.players[0];
-  if (p.coffee <= 0) {
-    alert("No Coffee Tokens! You earn Coffee on the Kudos track at ⭐ 3 and ⭐ 7, or from specific card traits.");
-    return;
+function startCoffeeBreak() {
+  const p0 = state.players[0];
+  if (p0.coffee <= 0) {
+    if (p0.energy < 1) { log("No Coffee and no Energy left!"); return; }
+    // Spend 1 Energy for break
+    p0.energy -= 1;
+    p0.coffee += 1; // Temporarily give 1 coffee logic
+    log("Spent ⚡ 1 Energy to brew a Coffee. Select who to revive.");
   }
-  const exhaustedStaff = p.office.filter(w => w.exhausted);
-  if (exhaustedStaff.length === 0) {
-    log("No colleagues are currently exhausted!");
-    return;
-  }
-
-  p.coffee -= 1;
-  p.office.forEach(w => w.exhausted = false);
-  log(`☕ Poured an agency coffee round! **All ${exhaustedStaff.length} exhausted colleagues are refreshed!**`);
+  state.mode = 'TARGET_COFFEE';
   render();
-}
-
-function claimTask(idx) {
-  const p = state.players[0];
-  const t = state.marketTasks[idx];
-
-  if (t.check(p)) {
-    p.score += t.reward;
-    checkTrackMilestones(0);
-    confetti({ particleCount: 120, spread: 70 });
-    log(`🎯 Contract Verified! **${t.name}** (+${t.reward} Kudos)!`);
-    state.marketTasks[idx] = MASTER_TASKS[Math.floor(Math.random() * MASTER_TASKS.length)];
-    closeModal();
-    render();
-  } else {
-    alert(`Requirement not met! "${t.req}"`);
-  }
-}
-
-function checkTrackMilestones(playerIdx) {
-  const p = state.players[playerIdx];
-  if (p.score >= 3 && !p.milestone3Claimed) {
-    p.milestone3Claimed = true;
-    p.coffee += 1;
-    log(`${playerIdx === 0 ? 'You' : 'Rival'} passed the **⭐ 3 Milestone**: Earned ☕ 1 Coffee Token!`);
-  }
-  if (p.score >= 7 && !p.milestone7Claimed) {
-    p.milestone7Claimed = true;
-    p.coffee += 1;
-    log(`${playerIdx === 0 ? 'You' : 'Rival'} passed the **⭐ 7 Milestone**: Earned ☕ 1 Coffee Token!`);
-  }
 }
 
 /* ==========================================================================
-   COMBAT / PROJECT ATTEMPTS
+   MODAL GENERATOR
    ========================================================================== */
-function attemptProject(projIdx) {
-  const p = state.players[0];
-  const proj = state.projects[projIdx];
+function openModal(zone, index) {
+  const p0 = state.players[0];
+  const m = document.getElementById("modal-content");
+  let card, buttonsHTML = "";
 
-  if (p.committed.length === 0) {
-    log("Commit colleagues in your office before delivering!");
-    return;
+  if (zone.startsWith('MARKET')) {
+    if (zone === 'MARKET_COLL') card = state.market.colleagues[index];
+    if (zone === 'MARKET_ITEM') card = state.market.items[index];
+    if (zone === 'MARKET_TASK') card = state.market.tasks[index];
+    
+    buttonsHTML = card.type === 'TASK' 
+      ? `<button class="modal-btn btn-primary" onclick="claimTask(${index})">Claim Bounty (⭐ +${card.reward})</button>`
+      : `<button class="modal-btn btn-primary" onclick="buyCard('${zone}', ${index})">Draft to Hand (Costs ⚡ ${card.cost})</button>`;
+  } 
+  
+  else if (zone === 'HAND') {
+    card = p0.hand[index];
+    if (card.type === 'COLLEAGUE') {
+      buttonsHTML = `<button class="modal-btn btn-primary" onclick="deployColleague(${index})">Deploy to Office (FREE - 0 ⚡)</button>`;
+    } else if (card.type === 'ITEM') {
+      if (card.effect === 'COFFEE_STASH') {
+        buttonsHTML = `<button class="modal-btn btn-primary" onclick="playItemDirect(${index})">Use Item: Gain 1 Coffee (FREE - 0 ⚡)</button>`;
+      } else {
+        buttonsHTML = `<button class="modal-btn btn-primary" onclick="startItemTargeting(${index})">Arm Construct (Select Target)</button>`;
+      }
+    }
   }
 
-  // Exact skill check
-  const committedStaff = p.committed.map(c => p.office[c.index]);
-  const skills = committedStaff.map(w => w.skill);
+  else if (zone === 'OFFICE') {
+    card = p0.office[index];
+    if (card.exhausted) {
+      log("Colleague is exhausted. Use Coffee to revive."); return;
+    }
+    const isCommitted = card.committed;
+    buttonsHTML = isCommitted
+      ? `<button class="modal-btn btn-cancel" onclick="uncommit(${index})">Undo Commitment</button>`
+      : `<button class="modal-btn btn-primary" onclick="commitVelocity(${index})">Commit for Velocity (+${card.velocity} SP)</button>
+         <button class="modal-btn btn-trait" onclick="commitTrait(${index})">Use Trait: ${card.trait} (Costs ⚡ ${card.traitCost})</button>`;
+  }
 
+  else if (zone === 'PROJECT') {
+    card = state.projects[index];
+    const committedCount = p0.office.filter(w => w.committed).length;
+    buttonsHTML = committedCount > 0 
+      ? `<button class="modal-btn btn-primary" onclick="deliverProject(${index})">Execute Delivery (${committedCount} Staff Assigned)</button>`
+      : `<div style="font-size:0.8rem; color:#f43f5e; text-align:center;">Assign staff in your office before delivering.</div>`;
+  }
+
+  // Draw Modal
+  m.innerHTML = `
+    <div class="modal-art"><span>${card.emoji}</span></div>
+    <div>
+      <h2 style="margin:0; font-size:1.4rem; color:var(--p1);">${card.name}</h2>
+      <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">${card.type}</div>
+    </div>
+    <p style="font-size:0.85rem; color:#cbd5e1; line-height:1.4; margin:0;">${card.desc || card.req || ''}</p>
+    <div style="margin-top:10px;">${buttonsHTML}</div>
+    <button class="modal-btn btn-cancel" onclick="cancelAction()">Cancel</button>
+  `;
+  document.getElementById("modal-backdrop").style.display = "flex";
+}
+
+/* ==========================================================================
+   MODAL ACTIONS
+   ========================================================================== */
+function buyCard(zone, index) {
+  const p0 = state.players[0];
+  let arr = zone === 'MARKET_COLL' ? state.market.colleagues : state.market.items;
+  let card = arr[index];
+
+  if (p0.hand.length >= 6) { alert("Hand Limit (6) Reached!"); return; }
+  if (p0.energy < card.cost) { alert(`Not enough actions. Costs ⚡ ${card.cost}.`); return; }
+
+  p0.energy -= card.cost;
+  p0.hand.push(clone(card));
+  arr[index] = clone(randItem(zone === 'MARKET_COLL' ? DB.colleagues : DB.items));
+  
+  log(`Drafted **${card.name}**.`);
+  cancelAction();
+}
+
+function deployColleague(index) {
+  const p0 = state.players[0];
+  if (p0.office.length >= 6) { alert("Office full! (Max 6)."); return; }
+  
+  const card = p0.hand.splice(index, 1)[0];
+  card.exhausted = false; card.committed = false;
+  p0.office.push(card);
+  log(`Deployed **${card.name}** (FREE).`);
+  cancelAction();
+}
+
+function startItemTargeting(index) {
+  const p0 = state.players[0];
+  state.pendingItem = p0.hand[index];
+  state.mode = 'TARGET_ITEM';
+  document.getElementById("modal-backdrop").style.display = "none";
+  render();
+}
+
+function playItemDirect(index) {
+  const p0 = state.players[0];
+  const item = p0.hand.splice(index, 1)[0];
+  if (item.effect === 'COFFEE_STASH') p0.coffee += 1;
+  log(`Played **${item.name}**. Gained 1 Coffee.`);
+  cancelAction();
+}
+
+function claimTask(index) {
+  const p0 = state.players[0];
+  const t = state.market.tasks[index];
+  if (t.check(p0)) {
+    p0.score += t.reward;
+    log(`🎯 Bounty Claimed: **${t.name}** (+${t.reward} ⭐).`);
+    state.market.tasks[index] = clone(randItem(DB.tasks));
+    cancelAction();
+  } else {
+    alert(`Requirement not met: ${t.req}`);
+  }
+}
+
+function commitVelocity(index) {
+  state.players[0].office[index].committed = 'VELOCITY';
+  cancelAction();
+}
+
+function commitTrait(index) {
+  const p0 = state.players[0];
+  const card = p0.office[index];
+  if (p0.energy < card.traitCost) { alert(`Needs ⚡ ${card.traitCost} Actions.`); return; }
+  
+  p0.energy -= card.traitCost;
+  card.committed = 'TRAIT';
+  log(`Triggered Trait: **${card.name}**. (Spent ⚡ ${card.traitCost})`);
+  cancelAction();
+}
+
+function uncommit(index) {
+  state.players[0].office[index].committed = false;
+  cancelAction();
+}
+
+/* ==========================================================================
+   PROJECT DELIVERY
+   ========================================================================== */
+function deliverProject(index) {
+  cancelAction();
+  const p0 = state.players[0];
+  const proj = state.projects[index];
+  const staff = p0.office.filter(w => w.committed);
+
+  // Skill Check
+  const skills = staff.map(w => w.skill);
+  const bypass = staff.some(w => w.committed === 'TRAIT' && w.id === 'c_hacker');
   let hasSkill = false;
   if (proj.reqSkill === "DESIGN" && skills.includes("DESIGN")) hasSkill = true;
   else if (proj.reqSkill === "SYSTEMS" && skills.includes("SYSTEMS")) hasSkill = true;
   else if (proj.reqSkill === "LOGIC" && skills.includes("LOGIC")) hasSkill = true;
   else if (proj.reqSkill === "SYSTEMS_LOGIC" && skills.includes("SYSTEMS") && skills.includes("LOGIC")) hasSkill = true;
   else if (proj.reqSkill === "FULL_STACK" && skills.includes("DESIGN") && skills.includes("SYSTEMS") && skills.includes("LOGIC")) hasSkill = true;
+  if (bypass) hasSkill = true;
 
-  const hasHackerBypass = p.committed.some(c => c.mode === 'TRAIT' && p.office[c.index].id === 'c_hacker');
-  if (hasHackerBypass) hasSkill = true;
+  if (!hasSkill) { log(`❌ Lacking required skill: **${proj.reqSkill}**.`); return; }
 
-  if (!hasSkill) {
-    log(`❌ Skill Gate Failed! Ticket demands **${proj.reqSkill}**.`);
-    return;
-  }
+  // Calc Velocity
+  let totalVel = 0; let reroll = false; let shield = false;
+  let compMods = 0; let preventExhaustIds = [];
 
-  let totalVelocity = 0;
-  let reRollLuck = false;
-  let hasShield = false;
-  let preventExhaustIdx = -1;
-
-  p.committed.forEach(c => {
-    const worker = p.office[c.index];
-    if (c.mode === 'VELOCITY') {
-      totalVelocity += worker.velocity;
-    } else if (c.mode === 'TRAIT') {
-      if (worker.id === "c_qa_1" || worker.id === "c_qa_2") reRollLuck = true;
-      if (worker.id === "c_apprentice") totalVelocity += 2;
-      if (worker.id === "c_intern") {
-        const freeItem = drawCard('items');
-        if (freeItem && p.hand.length < 6) p.hand.push(freeItem);
-      }
-      log(`Triggered Trait: **${worker.name}**!`);
-    }
+  staff.forEach((w, i) => {
+    let vel = w.velocity;
+    // Check Item Effects
+    state.activeItemEffects.forEach(eff => {
+      if (eff.effect === 'DOUBLE_VELOCITY' && eff.targetIndex === p0.office.indexOf(w)) vel *= 2;
+      if (eff.effect === 'PREVENT_EXHAUST' && eff.targetIndex === p0.office.indexOf(w)) preventExhaustIds.push(w.id);
+    });
+    
+    if (w.committed === 'VELOCITY') totalVel += vel;
+    if (w.committed === 'TRAIT' && w.id === 'c_qa') reroll = true;
+    if (w.committed === 'TRAIT' && w.id === 'c_apprentice') totalVel += 2;
   });
 
-  let targetComplexity = proj.complexity;
-  if (state.armedConstruct) {
-    if (state.armedConstruct.effect === "DOUBLE_VELOCITY") totalVelocity *= 2;
-    if (state.armedConstruct.effect === "SHIELD_FAIL") hasShield = true;
-    if (state.armedConstruct.effect === "LOWER_COMPLEXITY") targetComplexity = Math.max(1, targetComplexity - 2);
-    if (state.armedConstruct.effect === "PREVENT_EXHAUST") preventExhaustIdx = p.committed[0].index;
-    log(`Construct Executed: **${state.armedConstruct.name}**!`);
-    state.armedConstruct = null;
-  }
-
-  let roll = Math.floor(Math.random() * 4) + 1;
-  if (reRollLuck && roll <= 2) {
-    roll = Math.floor(Math.random() * 4) + 1;
-    log(`QA Assert Check: Re-rolled spark to ${roll}!`);
-  }
-
-  const grandTotal = totalVelocity + roll;
-  log(`Shipping **${proj.name}**: Velocity (${totalVelocity} SP) + Spark (${roll}) = ${grandTotal} vs ${targetComplexity} SP`);
-
-  p.committed.forEach(c => {
-    if (c.index !== preventExhaustIdx) {
-      p.office[c.index].exhausted = true;
-    }
+  state.activeItemEffects.forEach(eff => {
+    if (eff.effect === 'LOWER_COMPLEXITY' && eff.targetProjectIdx === index) compMods += 2;
+    if (eff.effect === 'SHIELD_FAIL' && eff.targetProjectIdx === index) shield = true;
   });
+  
+  let targetComp = Math.max(1, proj.complexity - compMods);
 
-  if (grandTotal >= targetComplexity) {
-    p.score += proj.reward;
-    checkTrackMilestones(0);
-    confetti({ particleCount: 150, spread: 80 });
-    log(`🎉 Milestone Verified! +${proj.reward} Kudos earned.`);
+  // Roll
+  let roll = Math.floor(Math.random()*4)+1;
+  if (reroll && roll <= 2) roll = Math.floor(Math.random()*4)+1;
 
-    // Replace project from top of project deck
-    const newProj = drawProjectCard();
-    if (newProj) state.projects[projIdx] = newProj;
-    else state.projects.splice(projIdx, 1);
+  const total = totalVel + roll;
+  log(`Delivery: Velocity (${totalVel}) + Spark (${roll}) = ${total} vs ${targetComp} SP`);
 
-    if (p.score >= 10) {
-      alert("🏆 VICTORY! Your agency reached 10 Kudos and won!");
-      location.reload();
-      return;
-    }
+  // Exhaust
+  staff.forEach(w => { if (!preventExhaustIds.includes(w.id)) w.exhausted = true; w.committed = false; });
+  state.activeItemEffects = []; // Clear items
+
+  if (total >= targetComp) {
+    p0.score += proj.reward;
+    confetti({ particleCount: 100, spread: 70 });
+    log(`🎉 Success! +${proj.reward} Kudos.`);
+    state.projects[index] = clone(randItem(DB.projects));
   } else {
-    if (hasShield) {
-      log(`🦺 try/catch Construct caught failure! Zero penalty.`);
+    if (shield) {
+      log("🦺 try/catch prevented the penalty!");
     } else {
-      if (proj.penalty.includes("Coffee")) p.coffee = Math.max(0, p.coffee - 1);
-      else if (proj.penalty.includes("Worker") && p.office.length > 0) {
-        const quitWorker = p.office.pop();
-        state.decks.colleagueDiscard.push(quitWorker);
-        log(`🔥 Penalty: **${quitWorker.name}** burned out & quit!`);
-      } else if (proj.penalty.includes("Kudos")) {
-        p.score = Math.max(0, p.score - 2);
+      log(`🔥 Failed! Penalty: ${proj.penalty}`);
+      if (proj.penalty.includes("Coffee")) p0.coffee = Math.max(0, p0.coffee - 1);
+      else if (proj.penalty.includes("Kudos")) p0.score = Math.max(0, p0.score - 2);
+      else if (proj.penalty.includes("Discard") && p0.office.length > 0) {
+        state.mode = 'TARGET_DISCARD'; // Enter target discard mode!
       }
     }
   }
-
-  p.committed = [];
   render();
 }
 
 function endTurn() {
   state.players[0].energy = 3;
-  state.players[0].committed = [];
-
-  // Progression check: At Round 3, shuffle Super Projects into the project deck!
-  if (state.round === 2) {
-    log("⚠️ CRUNCH TIME: High-stakes Super Projects shuffled into the project backlog deck!");
-    state.decks.projects = fisherYatesShuffle([...state.decks.projects, ...SUPER_PROJECTS]);
-  }
-  state.round++;
-
-  log("--- RIVAL AGENCY TURN ---");
-  runAITurn();
-}
-
-/* ==========================================================================
-   STRICT, UNBIASED AI (OBEYS ALL SKILL GATES & SPARK ROLLS)
-   ========================================================================== */
-function runAITurn() {
+  state.players[0].office.forEach(w => w.committed = false);
+  
+  // Basic AI Turn
   const ai = state.players[1];
-  ai.energy = 3;
-
-  // 1. AI deploys from hand (FREE action, respects office limit of 6)
-  if (ai.office.length < 6 && ai.hand.length > 0) {
-    const colIdx = ai.hand.findIndex(c => c.type === 'COLLEAGUE');
-    if (colIdx !== -1) {
-      const col = ai.hand.splice(colIdx, 1)[0];
-      ai.office.push({ ...col, exhausted: false });
-      log(`Rival AI deployed **${col.name}** (FREE).`);
-    }
-  }
-
-  // 2. AI recruits from market (Strict cost check - cannot overspend)
-  const affordableColIdx = state.marketColleagues.findIndex(c => c && c.cost <= ai.energy);
-  if (affordableColIdx !== -1 && ai.hand.length < 6) {
-    const card = state.marketColleagues[affordableColIdx];
-    ai.energy -= card.cost;
-    ai.hand.push({ ...card });
-    state.marketColleagues[affordableColIdx] = drawCard('colleagues');
-    log(`Rival AI recruited **${card.name}** (Spent ⚡ ${card.cost}).`);
-  }
-
-  // 3. AI attempts project: STRICT SKILL CHECKING AND REAL SPARK ROLL
-  const readyWorkers = ai.office.filter(w => !w.exhausted);
-  if (readyWorkers.length > 0) {
-    const availableSkills = readyWorkers.map(w => w.skill);
-
-    // AI finds an eligible project where it ACTUALLY possesses required skills
-    let eligibleIdx = -1;
-    for (let i = 0; i < state.projects.length; i++) {
-      const proj = state.projects[i];
-      let hasSkill = false;
-      if (proj.reqSkill === "DESIGN" && availableSkills.includes("DESIGN")) hasSkill = true;
-      else if (proj.reqSkill === "SYSTEMS" && availableSkills.includes("SYSTEMS")) hasSkill = true;
-      else if (proj.reqSkill === "LOGIC" && availableSkills.includes("LOGIC")) hasSkill = true;
-      else if (proj.reqSkill === "SYSTEMS_LOGIC" && availableSkills.includes("SYSTEMS") && availableSkills.includes("LOGIC")) hasSkill = true;
-      else if (proj.reqSkill === "FULL_STACK" && availableSkills.includes("DESIGN") && availableSkills.includes("SYSTEMS") && availableSkills.includes("LOGIC")) hasSkill = true;
-
-      if (hasSkill) {
-        const teamPower = readyWorkers.reduce((s, w) => s + w.velocity, 0);
-        // Only risks if it has a realistic chance (Power + 2 >= complexity)
-        if (teamPower + 2 >= proj.complexity) {
-          eligibleIdx = i;
-          break;
-        }
-      }
-    }
-
-    if (eligibleIdx !== -1) {
-      const proj = state.projects[eligibleIdx];
-      const teamPower = readyWorkers.reduce((s, w) => s + w.velocity, 0);
-      
-      // FAIR AI SPARK ROLL (1 to 4)
-      const aiRoll = Math.floor(Math.random() * 4) + 1;
-      const aiTotal = teamPower + aiRoll;
-
-      readyWorkers.forEach(w => w.exhausted = true);
-      log(`Rival AI tackles **${proj.name}**: Velocity (${teamPower}) + Roll (${aiRoll}) = ${aiTotal} vs ${proj.complexity} SP`);
-
-      if (aiTotal >= proj.complexity) {
-        ai.score += proj.reward;
-        checkTrackMilestones(1);
-        log(`Rival AI shipped **${proj.name}** (+${proj.reward} Kudos)!`);
-
-        const newProj = drawProjectCard();
-        if (newProj) state.projects[eligibleIdx] = newProj;
-        else state.projects.splice(eligibleIdx, 1);
-
-        if (ai.score >= 10) {
-          alert("Rival reached 10 Kudos first! Sprint lost.");
-          location.reload();
-          return;
-        }
-      } else {
-        log(`Rival AI failed delivery! Suffers project penalty.`);
-        if (proj.penalty.includes("Coffee")) ai.coffee = Math.max(0, ai.coffee - 1);
-        else if (proj.penalty.includes("Worker") && ai.office.length > 0) {
-          const burned = ai.office.pop();
-          state.decks.colleagueDiscard.push(burned);
-          log(`Rival's **${burned.name}** quit the agency!`);
-        } else if (proj.penalty.includes("Kudos")) {
-          ai.score = Math.max(0, ai.score - 2);
-        }
-      }
-    }
-  }
-
-  // 4. AI uses Coffee Token if 2 or more staff are exhausted
-  if (ai.coffee > 0) {
-    const exhaustedCount = ai.office.filter(w => w.exhausted).length;
-    if (exhaustedCount >= 2) {
-      ai.coffee -= 1;
-      ai.office.forEach(w => w.exhausted = false);
-      log(`Rival AI spent a Coffee Token: Refreshed all ${exhaustedCount} staff!`);
-    }
-  }
-
+  ai.score += Math.floor(Math.random() * 2); // Simulates AI scoring for solo play testing
+  log("Rival AI executed their sprint backlog.");
+  
   render();
-}
-
-/* ==========================================================================
-   RULES & TOUR
-   ========================================================================== */
-function openRules() {
-  const m = document.getElementById("modal-content");
-  m.innerHTML = `
-    <h2 style="margin:0; color:var(--p1); font-size:1.2rem;">Code, Crunch & Coffee: Rulebook</h2>
-    <h3>🎯 Win Condition</h3>
-    <p>Reach <strong>10 Kudos (⭐)</strong> first by shipping client tickets and completing contracts.</p>
-    
-    <h3>⚡ Action Economy (3 Actions Per Turn)</h3>
-    <ul>
-      <li><strong>Deploy to Office:</strong> 100% FREE (0 Actions). Limit 6 staff in office.</li>
-      <li><strong>Use Item from Hand:</strong> 100% FREE (0 Actions). Discarded after use.</li>
-      <li><strong>Basic Velocity Attack:</strong> FREE (0 Actions), but leaves colleague Exhausted.</li>
-      <li><strong>Recruit from Market:</strong> Costs the card's printed Energy cost (1 to 3 Actions).</li>
-      <li><strong>Colleague Traits:</strong> Costs 0 to 2 Actions as indicated on the card.</li>
-    </ul>
-
-    <h3>☕ The Coffee Rules (Readying Staff)</h3>
-    <p>Allies <strong>DO NOT</strong> auto-refresh each turn! There is no free coffee. You earn Coffee Cups by passing <strong>⭐ 3 and ⭐ 7 on the Kudos Track</strong>, or through card traits. Spending 1 Coffee Token readies <strong>ALL</strong> exhausted staff in your office simultaneously!</p>
-    <button class="btn" style="width:100%; margin-top:10px;" onclick="closeModal()">Return to Terminal</button>
-  `;
-  document.getElementById("card-modal").style.display = "flex";
-}
-
-let currentTourStep = 0;
-const TOUR_STOPS = [
-  { targetId: "sector-backlog", title: "1. The Sprint Backlog", desc: "Client projects wait here. Match required skill tags and beat Story Point Complexity. Basic deliveries cost 0 Actions!" },
-  { targetId: "sector-market", title: "2. The 3×3 Repository Market", desc: "Spend your 3 Actions here. Row 1 is Colleagues, Row 2 is One-Off Coding Constructs, and Row 3 is Company Bounties. Everything drafted goes to Hand!" },
-  { targetId: "sector-office", title: "3. Your Active Office (Max 6)", desc: "Staff work here. Delivering leaves them EXHAUSTED. Click any colleague to choose between Raw Velocity (FREE) or their Trait (costs actions)!" },
-  { targetId: "hand-dock", title: "4. Your Docked Hand (Max 6)", desc: "Starts with your 2 heroes. Deploying a colleague from hand into office is completely FREE (⚡ 0 Actions)! One-off constructs are also free." },
-  { targetId: "spotlight-track", title: "5. Kudos Track & Coffee Milestones", desc: "First to 10 Kudos wins! Passing ⭐ 3 and ⭐ 7 earns Coffee Mug tokens. Spending 1 Coffee Token readies ALL exhausted staff at once!" }
-];
-
-function startInteractiveTour() {
-  currentTourStep = 0;
-  document.getElementById("tour-backdrop").style.display = "block";
-  showTourStop();
-}
-
-function showTourStop() {
-  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-  const stop = TOUR_STOPS[currentTourStep];
-  const targetEl = document.getElementById(stop.targetId);
-  targetEl.classList.add('tour-highlight');
-  targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-  const rect = targetEl.getBoundingClientRect();
-  const cardBox = document.getElementById("tour-card-box");
-  const boxTop = Math.min(window.innerHeight - 200, Math.max(20, rect.bottom - 80));
-  const boxLeft = Math.min(window.innerWidth - 380, Math.max(16, rect.left + 20));
-
-  cardBox.style.top = `${boxTop}px`;
-  cardBox.style.left = `${boxLeft}px`;
-  document.getElementById("tour-step-badge").innerText = `STEP ${currentTourStep + 1} OF ${TOUR_STOPS.length}`;
-  document.getElementById("tour-title").innerText = stop.title;
-  document.getElementById("tour-desc").innerText = stop.desc;
-}
-
-function nextTourStep() {
-  currentTourStep++;
-  if (currentTourStep < TOUR_STOPS.length) showTourStop();
-  else endTour();
-}
-
-function endTour() {
-  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
-  document.getElementById("tour-backdrop").style.display = "none";
 }
 
 initGame();
