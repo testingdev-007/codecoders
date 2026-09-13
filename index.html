@@ -34,7 +34,7 @@
     overflow-x: hidden;
   }
 
-  /* BRAND MASTHEAD & RUNTIME TRACKER */
+  /* BRAND HEADER */
   header {
     display: flex;
     justify-content: space-between;
@@ -48,11 +48,7 @@
     flex-wrap: wrap;
     gap: 12px;
   }
-  .brand-block {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .brand-block { display: flex; align-items: center; gap: 10px; }
   .brand-mug {
     font-size: 1.8rem;
     background: #1e130c;
@@ -139,6 +135,21 @@
     align-items: center;
   }
 
+  /* COFFEE STASH WIDGET */
+  .coffee-inventory-badge {
+    background: #1c130b;
+    border: 1px solid var(--coffee-warm);
+    border-radius: 6px;
+    padding: 3px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fef3c7;
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.2);
+  }
+
   /* CARD GRIDS */
   .card-row {
     display: grid;
@@ -152,7 +163,7 @@
     gap: 12px;
   }
 
-  /* OWEN DAVEY STYLE MID-CENTURY CARDS */
+  /* CARDS */
   .card {
     background: #111a2e;
     border: 2px solid #233559;
@@ -266,7 +277,7 @@
     font-size: 0.75rem;
   }
 
-  /* SHOWCASE FULL-SCREEN MODAL */
+  /* SHOWCASE MODAL */
   #card-modal {
     display: none;
     position: fixed;
@@ -357,15 +368,14 @@
 
   <div style="display:flex; gap:12px; align-items:center;">
     <div style="font-size:0.8rem;">
-      <span>⚡ <strong id="p0-energy" style="color:var(--p1);">3</strong> Cycles</span> | 
-      <span>☕ <strong id="p0-coffee" style="color:var(--gold);">0</strong> Coffee</span>
+      <span>⚡ <strong id="p0-energy" style="color:var(--p1);">3</strong> Energy</span>
     </div>
-    <button class="btn btn-end" onclick="endTurn()">Done: End Crunch</button>
+    <button class="btn btn-end" onclick="endTurn()">Done: End Turn</button>
   </div>
 </header>
 
 <div class="arena-grid">
-  <!-- LEFT WING: THE SPRINT COMMONS (BACKLOG & DEPENDENCY MARKET) -->
+  <!-- LEFT WING: THE COMMONS -->
   <div style="display:flex; flex-direction:column; gap:12px;">
     <!-- PRODUCTION BACKLOG -->
     <div class="sector" style="border-color: rgba(245, 158, 11, 0.4);">
@@ -376,11 +386,11 @@
       <div class="card-row" id="projects-container"></div>
     </div>
 
-    <!-- 3x3 OPEN REPOSITORY MARKET -->
+    <!-- 3x3 DRAFT REPOSITORY -->
     <div class="sector">
       <div class="sector-title">
-        <span style="color:#60a5fa;">DEPENDENCY REPOSITORY (3×3 DRAFT MARKET)</span>
-        <span style="font-size:0.68rem; color:#94a3b8;">Click to Inspect & Draft to Hand</span>
+        <span style="color:#60a5fa;">DEPENDENCY REPOSITORY (3×3 MARKET)</span>
+        <span style="font-size:0.68rem; color:#94a3b8;">Draft Cards to Hand</span>
       </div>
       <div class="market-subgrid">
         <div>
@@ -388,7 +398,7 @@
           <div class="card-row" id="market-colleagues"></div>
         </div>
         <div>
-          <div style="font-size:0.65rem; font-weight:800; color:#c084fc; margin-bottom:4px;">2. ONE-OFF CODING CONSTRUCTS (TECHNIQUES)</div>
+          <div style="font-size:0.65rem; font-weight:800; color:#c084fc; margin-bottom:4px;">2. ONE-OFF CODING CONSTRUCTS (ITEMS)</div>
           <div class="card-row" id="market-items"></div>
         </div>
         <div>
@@ -399,13 +409,13 @@
     </div>
   </div>
 
-  <!-- RIGHT WING: THE TWO TERMINALS -->
+  <!-- RIGHT WING: OFFICES -->
   <div style="display:flex; flex-direction:column; gap:12px;">
-    <!-- RIVAL AI SECTOR -->
+    <!-- RIVAL AI OFFICE -->
     <div class="sector sector-ai">
       <div class="sector-title">
         <span style="color:var(--ai);">🤖 RIVAL AGENCY TERMINAL</span>
-        <span style="font-size:0.7rem; color:#94a3b8;">Active Staff: <span id="ai-count">1</span>/6 | ⚡ <span id="ai-energy">3</span></span>
+        <span style="font-size:0.7rem; color:#94a3b8;">Staff: <span id="ai-count">0</span>/6 | ⚡ <span id="ai-energy">3</span></span>
       </div>
       <div class="card-row" id="ai-office-container"></div>
     </div>
@@ -414,12 +424,18 @@
     <div class="sector sector-player" style="flex-grow:1;">
       <div class="sector-title">
         <div style="display:flex; align-items:center; gap:8px;">
-          <span style="color:var(--p1);">💻 YOUR OFFICE TERMINAL</span>
-          <span style="font-size:0.7rem; color:#94a3b8;">(<span id="player-count">1</span>/6 Active Staff)</span>
+          <span style="color:var(--p1);">💻 YOUR ACTIVE OFFICE</span>
+          <span style="font-size:0.7rem; color:#94a3b8;">(<span id="player-count">0</span>/6 Staff Limit)</span>
         </div>
-        <div style="display:flex; gap:6px;">
+        
+        <!-- VISIBLE COFFEE STASH & ACTIONS -->
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="coffee-inventory-badge">
+            <span>☕ Stashed Coffee:</span>
+            <span id="coffee-stash-count" style="color:var(--gold);">0</span>
+          </div>
           <button class="btn btn-coffee" onclick="takeCoffeeBreak()">☕ Coffee Break (⚡ 1)</button>
-          <button class="btn" style="background:#334155;" onclick="drinkCoffeeToken()">Drink Token (0 ⚡)</button>
+          <button class="btn" style="background:#475569;" onclick="drinkStashedCoffee()">Drink Stash (⚡ 0)</button>
         </div>
       </div>
       <div class="card-row" id="player-office-container"></div>
@@ -427,29 +443,30 @@
   </div>
 </div>
 
-<!-- BOTTOM DOCKED HAND TRAY (MAX 6) -->
+<!-- DOCKED HAND DRAWER (STARTING HAND OF 4) -->
 <div id="hand-dock">
   <div style="min-width:130px;">
     <div style="font-size:0.75rem; font-weight:800; color:var(--p1);">DOCKED HAND</div>
-    <div style="font-size:0.65rem; color:#94a3b8;"><span id="hand-count">0</span> / 6 Cards</div>
+    <div style="font-size:0.65rem; color:#94a3b8;"><span id="hand-count">4</span> / 6 Limit</div>
   </div>
   <div class="hand-drawer" id="player-hand-container"></div>
 </div>
 
 <div class="log-panel" id="game-log"></div>
 
-<!-- CARD SHOWCASE MODAL -->
+<!-- CARD MODAL -->
 <div id="card-modal" onclick="closeModal()">
   <div class="showcase-plate" onclick="event.stopPropagation()" id="modal-content"></div>
 </div>
 
 <script>
 /* ==========================================================================
-   CODE, CRUNCH & COFFEE: DATABASE
+   DATABASE: REBALANCED FOR 4-CARD CLEAN START
    ========================================================================== */
 const COLLEAGUES_POOL = [
   { id: "c_intern", type: "COLLEAGUE", name: "Junior Intern", cost: 1, velocity: 1, skill: "DESIGN", emoji: "☕", ability: "Coffee Run: Revive 1 exhausted colleague without spending energy.", desc: "Survives entirely on iced cold brew. Fast, cheap extra hands for UI tickets." },
-  { id: "c_backend", type: "COLLEAGUE", name: "Systems Engineer", cost: 2, velocity: 2, skill: "SYSTEMS", emoji: "💻", ability: "Architecture Boost: +1 permanent Velocity on Systems tickets.", desc: "Maintains database integrity, connection pooling, and distributed services." },
+  { id: "c_apprentice", type: "COLLEAGUE", name: "Junior Apprentice", cost: 1, velocity: 1, skill: "SYSTEMS", emoji: "💻", ability: "Pair Support: +1 Velocity if another colleague is committed on the same ticket.", desc: "Eager learner. Pairs with senior staff to clear database backlog." },
+  { id: "c_backend", type: "COLLEAGUE", name: "Systems Engineer", cost: 2, velocity: 2, skill: "SYSTEMS", emoji: "🛠️", ability: "Architecture Boost: +1 permanent Velocity on Systems tickets.", desc: "Maintains database integrity, connection pooling, and distributed services." },
   { id: "c_qa", type: "COLLEAGUE", name: "QA Analyst", cost: 2, velocity: 1, skill: "LOGIC", emoji: "🔍", ability: "Unit Assert: Intercepts and re-rolls low deployment spark rolls (1 or 2).", desc: "Defensive guardian. Catches nasty regression bugs before they hit prod." },
   { id: "c_lead", type: "COLLEAGUE", name: "Lead Architect", cost: 3, velocity: 4, skill: "SYSTEMS", emoji: "🚀", ability: "Pipeline Sprint: Deploy 1 colleague from Hand for 0 Energy.", desc: "Heavyweight engine builder. Shuts down massive enterprise monoliths." },
   { id: "c_hacker", type: "COLLEAGUE", name: "Security Hacker", cost: 2, velocity: 2, skill: "LOGIC", emoji: "🦉", ability: "Zero-Day Bypass: Completely ignore 1 skill requirement on a ticket.", desc: "Finds shortcuts in production firewalls to force ticket deployments." }
@@ -460,26 +477,26 @@ const ITEMS_POOL = [
   { id: "i_catch", type: "ITEM", name: "try / catch Block", cost: 1, emoji: "🦺", concept: "Fault Tolerance", effect: "SHIELD_FAIL", desc: "Isolates execution failures. Completely prevents penalty damage if ticket fails." },
   { id: "i_async", type: "ITEM", name: "Async Worker", cost: 1, emoji: "⏱️", concept: "Concurrency", effect: "PREVENT_EXHAUST", desc: "Non-blocking execution: Target colleague does not exhaust after this deployment." },
   { id: "i_refactor", type: "ITEM", name: "Code Refactor", cost: 1, emoji: "🩹", concept: "Technical Debt", effect: "LOWER_COMPLEXITY", desc: "Cleans architectural spaghetti: Lowers target Complexity by 2 SP." },
-  { id: "i_espresso", type: "ITEM", name: "Espresso Rig", cost: 2, emoji: "☕", concept: "Office Infrastructure", effect: "COFFEE_TOKEN", desc: "Immediately grants 2 Coffee Tokens to stock for free refreshes." }
+  { id: "i_espresso", type: "ITEM", name: "Espresso Rig", cost: 2, emoji: "☕", concept: "Office Infrastructure", effect: "COFFEE_STASH", desc: "Pours 2 Coffee Cups into your Breakroom stash for free future refreshes." }
 ];
 
 const TASKS_POOL = [
-  { id: "t_full", type: "TASK", name: "Full-Stack Agency", cost: 0, reward: 2, emoji: "🎯", req: "Have 🎨, ⚙️, and 🔒 active in office simultaneously.", check: (p) => { const s = p.office.map(w => w.skill); return s.includes("DESIGN") && s.includes("SYSTEMS") && s.includes("LOGIC"); } },
+  { id: "t_full", type: "TASK", name: "Full-Stack Setup", cost: 0, reward: 2, emoji: "🎯", req: "Have 🎨, ⚙️, and 🔒 active in office simultaneously.", check: (p) => { const s = p.office.map(w => w.skill); return s.includes("DESIGN") && s.includes("SYSTEMS") && s.includes("LOGIC"); } },
   { id: "t_scale", type: "TASK", name: "Scaled Squad", cost: 0, reward: 2, emoji: "👥", req: "Have 4 or more active staff deployed in office.", check: (p) => p.office.length >= 4 },
   { id: "t_cache", type: "TASK", name: "In-Memory Cache", cost: 0, reward: 1, emoji: "⚡", req: "Hold 2 or more Coding Items in your Hand.", check: (p) => p.hand.filter(c => c.type === 'ITEM').length >= 2 }
 ];
 
 const PROJECTS_POOL = [
   { id: "p_logo", type: "PROJECT", name: "CSS Theme Refactor", complexity: 3, reqSkill: "DESIGN", reward: 1, penalty: "Client rejects: No penalty.", emoji: "🎨" },
-  { id: "p_store", type: "PROJECT", name: "Storefront Endpoint", complexity: 4, reqSkill: "SYSTEMS", reward: 1, penalty: "Buffer leak: Lose 1 Coffee Token.", emoji: "🧁" },
-  { id: "p_shop", type: "PROJECT", name: "Black Friday Checkout", complexity: 6, reqSkill: "SYSTEMS", reward: 2, penalty: "Server crash: Lose 1 Coffee Token.", emoji: "🛍️" },
+  { id: "p_store", type: "PROJECT", name: "Storefront Endpoint", complexity: 4, reqSkill: "SYSTEMS", reward: 1, penalty: "Buffer leak: Lose 1 Coffee from Breakroom.", emoji: "🧁" },
+  { id: "p_shop", type: "PROJECT", name: "Black Friday Checkout", complexity: 6, reqSkill: "SYSTEMS", reward: 2, penalty: "Server crash: Lose 1 Coffee from Breakroom.", emoji: "🛍️" },
   { id: "p_auth", type: "PROJECT", name: "OAuth Auth Gateway", complexity: 7, reqSkill: "LOGIC", reward: 3, penalty: "Auth breach: -1 Energy next turn.", emoji: "🔐" },
   { id: "sp_bank", type: "SUPER_PROJECT", name: "Legacy Core Migration", complexity: 9, reqSkill: "SYSTEMS_LOGIC", reward: 5, penalty: "DISASTER: 1 Active Colleague burns out & quits!", emoji: "🏛️" },
   { id: "sp_cloud", type: "SUPER_PROJECT", name: "Global Cloud Crash", complexity: 10, reqSkill: "FULL_STACK", reward: 6, penalty: "PR CATASTROPHE: Lose 2 Kudos (⭐)!", emoji: "⚡" }
 ];
 
 /* ==========================================================================
-   STATE & CORE ENGINE
+   STATE & CLEAN INITIALIZATION
    ========================================================================== */
 const state = {
   active: 0,
@@ -500,20 +517,35 @@ function log(msg) {
 }
 
 function initGame() {
-  state.players[0].office.push({ ...COLLEAGUES_POOL[0], exhausted: false });
-  state.players[1].office.push({ ...COLLEAGUES_POOL[0], exhausted: false });
+  // CLEAN START: Offices start at 0/6. 
+  state.players[0].office = [];
+  state.players[1].office = [];
 
-  state.players[0].hand.push({ ...COLLEAGUES_POOL[1] }, { ...ITEMS_POOL[1] });
-  state.players[1].hand.push({ ...COLLEAGUES_POOL[1] }, { ...ITEMS_POOL[1] });
+  // STARTING HAND: Exactly 4 Cards (2 Colleagues + 2 Items)
+  state.players[0].hand = [
+    { ...COLLEAGUES_POOL[0] }, // Junior Intern
+    { ...COLLEAGUES_POOL[1] }, // Junior Apprentice
+    { ...ITEMS_POOL[0] },      // for...of Loop
+    { ...ITEMS_POOL[1] }       // try/catch
+  ];
 
-  state.marketColleagues = [COLLEAGUES_POOL[1], COLLEAGUES_POOL[2], COLLEAGUES_POOL[3]];
-  state.marketItems = [ITEMS_POOL[0], ITEMS_POOL[1], ITEMS_POOL[3]];
+  state.players[1].hand = [
+    { ...COLLEAGUES_POOL[0] },
+    { ...COLLEAGUES_POOL[1] },
+    { ...ITEMS_POOL[0] },
+    { ...ITEMS_POOL[1] }
+  ];
+
+  // 3x3 Market
+  state.marketColleagues = [COLLEAGUES_POOL[2], COLLEAGUES_POOL[3], COLLEAGUES_POOL[4]];
+  state.marketItems = [ITEMS_POOL[2], ITEMS_POOL[3], ITEMS_POOL[4]];
   state.marketTasks = [TASKS_POOL[0], TASKS_POOL[1], TASKS_POOL[2]];
 
+  // Backlog
   state.projects = [PROJECTS_POOL[0], PROJECTS_POOL[1], PROJECTS_POOL[4]];
 
   render();
-  log("Welcome to **Code, Crunch & Coffee**. Reach 10 Kudos before the rival agency!");
+  log("Game initialized. Turn 1: Deploy a colleague from your hand for ⚡ 1 Energy, or draft from the repository!");
 }
 
 /* ==========================================================================
@@ -529,7 +561,7 @@ function render() {
   document.getElementById("track-ai").style.width = `${Math.min(100, (p1.score / 10) * 100)}%`;
 
   document.getElementById("p0-energy").innerText = p0.energy;
-  document.getElementById("p0-coffee").innerText = p0.coffee;
+  document.getElementById("coffee-stash-count").innerText = p0.coffee;
   document.getElementById("ai-energy").innerText = p1.energy;
   document.getElementById("ai-count").innerText = p1.office.length;
   document.getElementById("player-count").innerText = p0.office.length;
@@ -538,9 +570,7 @@ function render() {
   // Projects
   document.getElementById("projects-container").innerHTML = state.projects.map((proj, idx) => `
     <div class="card ${proj.type === 'SUPER_PROJECT' ? 'super-card' : ''}" onclick="attemptProject(${idx})">
-      <div class="card-plate">
-        <span class="card-plate-icon">${proj.emoji}</span>
-      </div>
+      <div class="card-plate"><span class="card-plate-icon">${proj.emoji}</span></div>
       <div>
         <div style="font-size:0.6rem; font-weight:800; color:${proj.type === 'SUPER_PROJECT' ? '#ef4444' : '#f59e0b'};">
           ${proj.type === 'SUPER_PROJECT' ? 'SUPER PROJECT' : 'PROJECT'}
@@ -589,7 +619,7 @@ function render() {
       <div class="card-plate"><span class="card-plate-icon">${t.emoji}</span></div>
       <div>
         <div class="card-title">${t.name}</div>
-        <div class="card-meta">Company Bounty</div>
+        <div class="card-meta">Bounty</div>
       </div>
       <div class="card-stat-box">
         <span>CLAIM</span>
@@ -598,25 +628,29 @@ function render() {
     </div>
   `).join('');
 
-  // Office Terminal
-  document.getElementById("player-office-container").innerHTML = p0.office.map((w, idx) => {
-    const isCommitted = p0.committed.some(c => c.index === idx);
-    return `
-      <div class="card ${w.exhausted ? 'exhausted' : ''} ${isCommitted ? 'committed' : ''}" onclick="openCommitShowcase(${idx})">
-        <div class="card-plate"><span class="card-plate-icon">${w.emoji}</span></div>
-        <div>
-          <span class="tag tag-${w.skill.toLowerCase()}">${w.skill}</span>
-          <div class="card-title" style="margin-top:2px;">${w.name}</div>
+  // Player Office (Starts at 0)
+  document.getElementById("player-office-container").innerHTML = p0.office.length === 0 
+    ? `<div style="grid-column:span 4; padding:24px; text-align:center; color:#64748b; font-size:0.8rem; border:2px dashed #1e2d4d; border-radius:8px;">
+        Office Terminal Empty.<br>Click a colleague in your <strong>Docked Hand</strong> below and select <strong>Deploy (⚡ 1)</strong> to begin!
+       </div>`
+    : p0.office.map((w, idx) => {
+      const isCommitted = p0.committed.some(c => c.index === idx);
+      return `
+        <div class="card ${w.exhausted ? 'exhausted' : ''} ${isCommitted ? 'committed' : ''}" onclick="openCommitShowcase(${idx})">
+          <div class="card-plate"><span class="card-plate-icon">${w.emoji}</span></div>
+          <div>
+            <span class="tag tag-${w.skill.toLowerCase()}">${w.skill}</span>
+            <div class="card-title" style="margin-top:2px;">${w.name}</div>
+          </div>
+          <div class="card-stat-box">
+            <span style="color:var(--p1);">+${w.velocity} SP</span>
+            <span style="font-size:0.65rem; color:#94a3b8;">${w.exhausted ? '😴 Rest' : (isCommitted ? '✅ Lock' : 'Ready')}</span>
+          </div>
         </div>
-        <div class="card-stat-box">
-          <span style="color:var(--p1);">+${w.velocity} SP</span>
-          <span style="font-size:0.65rem; color:#94a3b8;">${w.exhausted ? '😴 Rest' : (isCommitted ? '✅ Lock' : 'Ready')}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
 
-  // Docked Hand
+  // Docked Hand (Starts with 4)
   document.getElementById("player-hand-container").innerHTML = p0.hand.map((card, idx) => `
     <div class="card hand-card" onclick="openHandShowcase(${idx})">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -624,25 +658,29 @@ function render() {
         <span style="font-size:0.6rem; color:#94a3b8;">${card.type}</span>
       </div>
       <div class="card-title" style="font-size:0.75rem;">${card.name}</div>
-      <div style="font-size:0.62rem; color:var(--p1);">Inspect ➔</div>
+      <div style="font-size:0.62rem; color:var(--p1);">Inspect / Play ➔</div>
     </div>
   `).join('');
 
   // AI Office
-  document.getElementById("ai-office-container").innerHTML = p1.office.map(w => `
-    <div class="card ${w.exhausted ? 'exhausted' : ''}">
-      <div class="card-plate"><span class="card-plate-icon">${w.emoji}</span></div>
-      <div><div class="card-title">${w.name}</div></div>
-      <div class="card-stat-box">
-        <span>+${w.velocity} SP</span>
-        <span style="font-size:0.65rem; color:#94a3b8;">${w.exhausted ? '😴' : '⚡'}</span>
-      </div>
-    </div>
-  `).join('');
+  document.getElementById("ai-office-container").innerHTML = p1.office.length === 0
+    ? `<div style="grid-column:span 4; padding:24px; text-align:center; color:#64748b; font-size:0.8rem; border:2px dashed #1e2d4d; border-radius:8px;">
+        Rival Office Empty. Preparing sprint...
+       </div>`
+    : p1.office.map(w => `
+        <div class="card ${w.exhausted ? 'exhausted' : ''}">
+          <div class="card-plate"><span class="card-plate-icon">${w.emoji}</span></div>
+          <div><div class="card-title">${w.name}</div></div>
+          <div class="card-stat-box">
+            <span>+${w.velocity} SP</span>
+            <span style="font-size:0.65rem; color:#94a3b8;">${w.exhausted ? '😴' : '⚡'}</span>
+          </div>
+        </div>
+      `).join('');
 }
 
 /* ==========================================================================
-   SHOWCASE & ACTIONS
+   SHOWCASE MODALS & ACTIONS
    ========================================================================== */
 function closeModal() { document.getElementById("card-modal").style.display = "none"; }
 
@@ -650,7 +688,7 @@ function openCommitShowcase(idx) {
   const p = state.players[0];
   const w = p.office[idx];
   if (w.exhausted) {
-    log("That colleague is exhausted! Take a Coffee Break (⚡ 1) or drink a token first.");
+    log("That colleague is exhausted! Take a Coffee Break (⚡ 1) or drink a stashed coffee first.");
     return;
   }
 
@@ -726,7 +764,7 @@ function openHandShowcase(idx) {
     <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5; margin:0;">${card.desc}</p>
 
     ${card.type === 'COLLEAGUE'
-      ? `<button class="btn btn-modal" onclick="deployColleagueFromHand(${idx})">Deploy to Office Terminal (⚡ 1 Energy)</button>`
+      ? `<button class="btn btn-modal" onclick="deployColleagueFromHand(${idx})">Deploy to Active Office (⚡ 1 Energy)</button>`
       : `<button class="btn btn-modal" style="background:#c084fc;" onclick="armConstruct(${idx})">Arm Construct for Next Ticket Delivery</button>`
     }
     <button class="btn" style="background:#334155;" onclick="closeModal()">Close</button>
@@ -743,7 +781,7 @@ function buyCardToHand(cat, idx) {
     return;
   }
   if (p.energy < card.cost) {
-    alert("Not enough Energy left this crunch!");
+    alert("Not enough Energy left!");
     return;
   }
 
@@ -774,16 +812,16 @@ function deployColleagueFromHand(idx) {
   p.office.push({ ...col, exhausted: false });
   closeModal();
   render();
-  log(`Deployed **${col.name}** into Office Terminal.`);
+  log(`Deployed **${col.name}** from Hand to Office Terminal.`);
 }
 
 function armConstruct(idx) {
   const p = state.players[0];
   const item = p.hand.splice(idx, 1)[0];
 
-  if (item.effect === "COFFEE_TOKEN") {
+  if (item.effect === "COFFEE_STASH") {
     p.coffee += 2;
-    log("Brewed 2 Coffee Tokens into stock!");
+    log("☕ Rig Installed: Added 2 Coffee Cups to your Breakroom stash!");
   } else {
     state.armedConstruct = item;
     log(`Construct Armed: **${item.name}** will trigger on next ticket delivery!`);
@@ -809,20 +847,20 @@ function takeCoffeeBreak() {
   render();
 }
 
-function drinkCoffeeToken() {
+function drinkStashedCoffee() {
   const p = state.players[0];
   if (p.coffee <= 0) {
-    log("No Coffee Tokens in stock! Draft an Espresso Rig or take a Coffee Break.");
+    log("No Coffee Cups stashed in the Breakroom! Buy an Espresso Rig or take an Action Coffee Break.");
     return;
   }
   const tired = p.office.find(w => w.exhausted);
   if (!tired) {
-    log("Nobody is currently exhausted!");
+    log("Nobody is exhausted right now!");
     return;
   }
   p.coffee -= 1;
   tired.exhausted = false;
-  log(`☕ Drank a Coffee Token: Refreshed **${tired.name}** for 0 Energy!`);
+  log(`☕ Drank stashed coffee: Refreshed **${tired.name}** for 0 Energy!`);
   render();
 }
 
@@ -851,7 +889,7 @@ function attemptProject(projIdx) {
     return;
   }
 
-  // 1. Skill verification
+  // 1. Skill check
   const committedStaff = p.committed.map(c => p.office[c.index]);
   const skills = committedStaff.map(w => w.skill);
 
@@ -909,6 +947,7 @@ function attemptProject(projIdx) {
   const grandTotal = totalVelocity + roll;
   log(`Shipping **${proj.name}**: Velocity (${totalVelocity} SP) + Spark (${roll}) = ${grandTotal} vs ${targetComplexity} SP`);
 
+  // Sticky Exhaustion
   p.committed.forEach(c => {
     if (c.index !== preventExhaustIdx) {
       p.office[c.index].exhausted = true;
@@ -922,7 +961,7 @@ function attemptProject(projIdx) {
     state.projects[projIdx] = PROJECTS_POOL[Math.floor(Math.random() * PROJECTS_POOL.length)];
 
     if (p.score >= 10) {
-      alert("🏆 VICTORY! Your agency reached 10 Kudos and dominated the market!");
+      alert("🏆 VICTORY! Your agency reached 10 Kudos and won the sprint!");
       location.reload();
       return;
     }
@@ -947,7 +986,7 @@ function attemptProject(projIdx) {
 function endTurn() {
   state.players[0].energy = 3;
   state.players[0].committed = [];
-  log("--- RIVAL AGENCY CRUNCH ---");
+  log("--- RIVAL AGENCY TURN ---");
   runAITurn();
 }
 
@@ -955,13 +994,18 @@ function runAITurn() {
   const ai = state.players[1];
   ai.energy = 3;
 
+  // 1. AI deploys from hand if office < 6
   if (ai.office.length < 6 && ai.hand.length > 0) {
-    const col = ai.hand.pop();
-    ai.office.push({ ...col, exhausted: false });
-    ai.energy -= 1;
-    log(`Rival AI deployed **${col.name}**.`);
+    const colIdx = ai.hand.findIndex(c => c.type === 'COLLEAGUE');
+    if (colIdx !== -1) {
+      const col = ai.hand.splice(colIdx, 1)[0];
+      ai.office.push({ ...col, exhausted: false });
+      ai.energy -= 1;
+      log(`Rival AI deployed **${col.name}**.`);
+    }
   }
 
+  // 2. AI drafts colleague if affordable
   if (ai.energy >= 2 && state.marketColleagues.length > 0) {
     const card = state.marketColleagues[0];
     ai.energy -= card.cost;
@@ -969,6 +1013,7 @@ function runAITurn() {
     state.marketColleagues[0] = COLLEAGUES_POOL[Math.floor(Math.random() * COLLEAGUES_POOL.length)];
   }
 
+  // 3. AI attempts project with ready workers
   const readyWorkers = ai.office.filter(w => !w.exhausted);
   if (readyWorkers.length > 0) {
     const power = readyWorkers.reduce((s, w) => s + w.velocity, 0);
@@ -982,7 +1027,7 @@ function runAITurn() {
       state.projects[viableIdx] = PROJECTS_POOL[Math.floor(Math.random() * PROJECTS_POOL.length)];
 
       if (ai.score >= 10) {
-        alert("Rival reached 10 Kudos first! Crunch lost.");
+        alert("Rival reached 10 Kudos first! Sprint lost.");
         location.reload();
         return;
       }
@@ -995,20 +1040,22 @@ function runAITurn() {
 function openRules() {
   const m = document.getElementById("modal-content");
   m.innerHTML = `
-    <h2 style="margin:0; color:var(--p1); font-size:1.4rem;">Code, Crunch & Coffee: Rules</h2>
+    <h2 style="margin:0; color:var(--p1); font-size:1.4rem;">Code, Crunch & Coffee: Fast Rules</h2>
     <h3>🎯 Win Condition</h3>
     <p>Reach <strong>10 Kudos (⭐)</strong> first by shipping client tickets and claiming milestone bounties.</p>
     
-    <h3>⚡ Crunch Economics</h3>
+    <h3>☕ The Coffee Rules (Reviving Staff)</h3>
     <ul>
-      <li><strong>Draft from 3x3 Market:</strong> Costs Energy (⚡). Goes to Hand.</li>
-      <li><strong>Deploy to Office:</strong> Costs ⚡ 1 Energy (Max 6 staff in terminal).</li>
-      <li><strong>Coffee Break:</strong> Spend ⚡ 1 Energy to revive 1 exhausted staff member.</li>
-      <li><strong>Drink Token:</strong> Revive 1 staff member for 0 Energy.</li>
+      <li><strong>Action Coffee Break:</strong> Spend ⚡ 1 Energy to revive 1 exhausted staff member.</li>
+      <li><strong>Drink Stashed Coffee:</strong> Spend ☕ 1 Coffee Cup from your Breakroom stash to revive 1 staff member for <strong>⚡ 0 Energy</strong>.</li>
     </ul>
 
-    <h3>💻 Coding Constructs (One-Offs)</h3>
-    <p>Arm items from your hand: <code>try/catch</code> shields from production crash penalties, <code>for...of</code> doubles velocity, and <code>Async</code> prevents staff exhaustion.</p>
+    <h3>⚡ Turn Economics</h3>
+    <ul>
+      <li><strong>Deploy to Office:</strong> Costs ⚡ 1 Energy. (Max 6 staff in terminal).</li>
+      <li><strong>Draft from 3x3 Market:</strong> Costs card Energy (⚡). Goes to Hand.</li>
+      <li><strong>Hand Limit:</strong> Maximum 6 cards.</li>
+    </ul>
     <button class="btn" style="width:100%; margin-top:10px;" onclick="closeModal()">Return to Terminal</button>
   `;
   document.getElementById("card-modal").style.display = "flex";
