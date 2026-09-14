@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code, Crunch & Coffee: The Final Build</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<style>
+  :root {
+    --bg: #030712;
+    --panel-bg: #0f172a;
+    --panel-border: #1e293b;
+    --p1: #38bdf8;
+    --ai: #f43f5e;
+    --gold: #fbbf24;
+    --coffee: #d97706;
+    --highlight: #a855f7;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; font-family: var(--font); }
+  
+  body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: #f8fafc;
+    height: 100vh;
+    display: flex;
+    overflow: hidden; user-select: none;
+  }
+
+  /* --- APP LAYOUT --- */
+  #main-game {
+    flex-grow: 1;
+    display: flex; flex-direction: column;
+    padding: 12px; gap: 12px;
+    height: 100%;
+  }
+
+  #sidebar-log {
+    width: 320px; min-width: 320px;
+    background: #020617;
+    border-left: 2px solid var(--panel-border);
+    display: flex; flex-direction: column;
+  }
+
+  /* --- SPLASH SCREEN --- */
+  #splash-screen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle at center, #0f172a, #030712);
+    z-index: 5000; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .splash-box {
+    max-width: 600px; background: #0b1121; border: 2px solid #334155;
+    border-radius: 16px; padding: 40px; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(56, 189, 248, 0.2);
+  }
+  .splash-title { font-size: 2.5rem; font-weight: 900; margin: 10px 0; color: #fff; letter-spacing: 0.02em; }
+  .splash-subtitle { color: var(--coffee); font-weight: 800; font-size: 1rem; letter-spacing: 0.05em; margin-bottom: 24px; }
+  .splash-rules { text-align: left; background: #020617; padding: 20px; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 24px; }
+  .splash-rules li { margin-bottom: 12px; font-size: 0.9rem; line-height: 1.4; color: #cbd5e1; }
+  .splash-rules strong { color: var(--p1); }
+  .btn-start { background: var(--p1); color: #000; font-weight: 900; font-size: 1.2rem; padding: 16px 32px; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; width: 100%; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
+  .btn-start:hover { transform: scale(1.03); background: #7dd3fc; }
+
+  /* --- HEADER --- */
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #0b1121; border: 1px solid var(--panel-border);
+    padding: 10px 20px; border-radius: 12px;
+  }
+  .status-bar { display: flex; gap: 20px; font-size: 0.9rem; font-weight: 800; }
+  .btn-header { background: #1e293b; color: #fff; font-weight: 700; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+  .btn-header:hover { background: #334155; }
+  .btn-end { background: var(--p1); color: #000; }
+
+  /* --- TARGETING BANNER --- */
+  #instruction-banner {
+    display: none; justify-content: center; align-items: center;
+    background: #7f1d1d; color: #fff; padding: 12px; border-radius: 8px;
+    font-weight: 900; font-size: 1rem; letter-spacing: 0.05em;
+    border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239,68,68,0.5);
+    animation: pulseBanner 1s infinite alternate; margin-bottom: -4px;
+  }
+  @keyframes pulseBanner { from { box-shadow: 0 0 10px rgba(239,68,68,0.4); } to { box-shadow: 0 0 30px rgba(239,68,68,0.8); } }
+
+  /* --- ARENA --- */
+  .arena {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+    flex-grow: 1; min-height: 0;
+  }
+  .zone {
+    background: var(--panel-bg); border: 1px solid var(--panel-border);
+    border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+  }
+  .zone-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; border-bottom: 1px solid #1e293b; padding-bottom: 8px; display: flex; justify-content: space-between; }
+  
+  .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid-1col { display: flex; flex-direction: column; gap: 8px; }
+
+  /* --- CARDS --- */
+  .card {
+    background: #0f172a; border: 2px solid #334155; border-radius: 8px;
+    padding: 8px; display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 140px; cursor: pointer; transition: 0.15s; position: relative;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--p1); box-shadow: 0 6px 12px rgba(0,0,0,0.5); }
+  
+  .card-art { height: 45px; background: #020617; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 6px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .card-title { font-size: 0.75rem; font-weight: 800; color: #f8fafc; line-height: 1.2; }
+  .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px; font-size: 0.65rem; font-weight: 800; }
+
+  .card.exhausted { opacity: 0.4; filter: grayscale(100%); border-color: #1e293b; }
+  .card.committed { border-color: var(--p1); box-shadow: 0 0 16px var(--p1-glow); }
+  .super-project { border-color: var(--ai); background: #1a0b12; }
+
+  /* Targeting States */
+  body.targeting-mode .card { opacity: 0.2; pointer-events: none; }
+  body.targeting-mode .card.target-valid { 
+    opacity: 1; pointer-events: auto; border-color: var(--gold); 
+    box-shadow: 0 0 20px var(--gold-glow); animation: bounce 1s infinite;
+  }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; font-weight: 800; text-transform: uppercase; }
+  .tag-design { background: #831843; color: #fbcfe8; }
+  .tag-systems { background: #1e3a8a; color: #bfdbfe; }
+  .tag-logic { background: #064e3b; color: #a7f3d0; }
+
+  /* --- HAND DOCK --- */
+  #hand-dock {
+    background: #0b1121; border: 1px solid var(--panel-border); border-radius: 12px;
+    padding: 10px; display: flex; align-items: center; gap: 12px; min-height: 110px;
+  }
+  .hand-cards { display: flex; gap: 8px; overflow-x: auto; flex-grow: 1; }
+  .hand-cards .card { min-width: 110px; max-width: 110px; min-height: 85px; }
+
+  /* --- SIDEBAR LOG --- */
+  .log-header { background: #0f172a; padding: 14px; font-weight: 900; color: var(--p1); border-bottom: 2px solid #1e293b; display: flex; align-items: center; gap: 8px; }
+  #log-content { padding: 14px; overflow-y: auto; flex-grow: 1; font-family: monospace; font-size: 0.75rem; color: #94a3b8; display: flex; flex-direction: column; gap: 8px; }
+  .log-entry { background: #0f172a; padding: 8px; border-radius: 6px; border-left: 2px solid #334155; }
+  .log-entry.turn { border-left-color: var(--p1); color: #e2e8f0; }
+  .log-entry.alert { border-left-color: var(--ai); color: #fecdd3; background: #2e0e15; }
+  .log-entry.success { border-left-color: var(--gold); color: #fef3c7; }
+
+  /* --- FULLSCREEN MODAL --- */
+  #modal-backdrop {
+    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(6px); z-index: 1000;
+    justify-content: center; align-items: center; padding: 20px;
+  }
+  .modal-card {
+    background: #0f172a; border: 2px solid #334155; border-radius: 16px;
+    width: 100%; max-width: 380px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .modal-art { height: 100px; background: #020617; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; border: 1px solid #1e293b; }
+  .modal-btn { width: 100%; padding: 12px; font-size: 0.9rem; font-weight: 800; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-top: 4px; }
+  .modal-btn:hover { filter: brightness(1.1); transform: scale(1.02); }
+  .btn-primary { background: var(--p1); color: #000; }
+  .btn-alt { background: var(--highlight); color: #fff; }
+  .btn-cancel { background: #334155; color: #f8fafc; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash-screen">
+  <div class="splash-box">
+    <div style="font-size:4rem; margin-bottom:10px;">☕</div>
+    <div class="splash-title">CODE, CRUNCH & COFFEE</div>
+    <div class="splash-subtitle">Ship to Prod or Burn Out Trying</div>
+    <div class="splash-rules">
+      <li><strong>Deploy for Free:</strong> Playing cards from your hand to your office costs 0 Energy.</li>
+      <li><strong>Manage Exhaustion:</strong> Colleagues tire out after working. Spend ⚡ 1 Energy to rest ONE, or spend ☕ 1 Coffee to ready EVERYONE.</li>
+      <li><strong>Win the Sprint:</strong> Assign your office staff to Backlog Projects. Beat the required Story Points to earn Kudos. First to 10 ⭐ wins.</li>
+    </div>
+    <button class="btn-start" onclick="startGame()">START SPRINT</button>
+  </div>
+</div>
+
+<!-- MAIN GAME AREA -->
+<div id="main-game">
+  <header>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div style="font-size:1.4rem;">☕</div>
+      <div>
+        <div style="font-weight:900; font-size:1rem; letter-spacing:0.05em;">FEATURE SPRINT</div>
+      </div>
+    </div>
+    
+    <div class="status-bar">
+      <div style="color:var(--gold);">⭐ Kudos: <span id="ui-score">0</span>/10</div>
+      <div style="color:var(--p1);">⚡ Energy: <span id="ui-energy">3</span></div>
+      <div style="color:var(--coffee);">☕ Coffee: <span id="ui-coffee">0</span></div>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button class="btn-header" onclick="startRestAction()">⚡ Rest 1 Colleague</button>
+      <button class="btn-header" style="background:var(--coffee); color:#000;" onclick="useCoffeeRound()">☕ Mass Revive</button>
+      <button class="btn-header btn-end" onclick="endTurn()">End Turn</button>
+    </div>
+  </header>
+
+  <div id="instruction-banner">⚠️ SELECT TARGET</div>
+
+  <div class="arena">
+    <!-- COL 1: BACKLOG -->
+    <div class="zone" style="border-color: rgba(245, 158, 11, 0.4);">
+      <div class="zone-title"><span style="color:var(--gold);">1. Backlog (Projects)</span></div>
+      <div class="grid-1col" id="projects-container"></div>
+    </div>
+
+    <!-- COL 2: MARKET -->
+    <div class="zone" style="border-color: rgba(56, 189, 248, 0.4);">
+      <div class="zone-title"><span style="color:var(--p1);">2. Market (Draft to Hand)</span></div>
+      <div class="grid-2col" id="market-container"></div>
+    </div>
+
+    <!-- COL 3: OFFICES -->
+    <div style="display:flex; flex-direction:column; gap:12px; height:100%;">
+      <div class="zone" style="border-color: rgba(244, 63, 94, 0.4); flex:1;">
+        <div class="zone-title"><span style="color:var(--ai);">🤖 AI Office (<span id="ai-count">0</span>/6)</span></div>
+        <div class="grid-2col" id="ai-office-container"></div>
+      </div>
+      <div class="zone" style="border-color: rgba(168, 85, 247, 0.4); flex:1.5;">
+        <div class="zone-title"><span style="color:var(--highlight);">💻 Your Office (<span id="player-count">0</span>/6)</span></div>
+        <div class="grid-2col" id="player-office-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HAND -->
+  <div id="hand-dock">
+    <div style="min-width:100px;">
+      <div style="font-size:0.75rem; font-weight:800; color:var(--p1);">YOUR HAND</div>
+      <div style="font-size:0.6rem; color:#94a3b8;"><span id="hand-count">2</span> / 6 Limit</div>
+      <div style="font-size:0.55rem; color:#34d399; font-weight:700; margin-top:2px;">Free Deploy</div>
+    </div>
+    <div class="hand-cards" id="player-hand-container"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR LOG -->
+<div id="sidebar-log">
+  <div class="log-header"><span>>_</span> TERMINAL LOG</div>
+  <div id="log-content"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-backdrop" onclick="cancelAction()">
+  <div class="modal-card" id="modal-content" onclick="event.stopPropagation()"></div>
+</div>
+
+<script>
+/* ==========================================================================
+   GAME DATA & RULES
+   ========================================================================== */
+const DB = {
+  colleagues: [
+    { id: "c_intern", name: "Junior Intern", cost: 1, velocity: 1, skill: "DESIGN", emoji: "☕", traitCost: 0, trait: "Draw 1 Item for free.", desc: "Fast, cheap extra hands." },
+    { id: "c_apprentice", name: "Apprentice", cost: 1, velocity: 1, skill: "SYSTEMS", emoji: "💻", traitCost: 1, trait: "+2 Velocity to ticket.", desc: "Eager pair programmer." },
+    { id: "c_backend", name: "Architect", cost: 2, velocity: 2, skill: "SYSTEMS", emoji: "🛠️", traitCost: 1, trait: "+2 permanent Velocity.", desc: "Heavy database muscle." },
+    { id: "c_qa", name: "QA Analyst", cost: 2, velocity: 1, skill: "LOGIC", emoji: "🔍", traitCost: 1, trait: "Re-roll low spark rolls.", desc: "Intercepts edge cases." },
+    { id: "c_lead", name: "Principal Dev", cost: 3, velocity: 4, skill: "SYSTEMS", emoji: "🚀", traitCost: 2, trait: "Ready 1 exhausted colleague.", desc: "Massive compute firepower." },
+    { id: "c_hacker", name: "Hacker", cost: 2, velocity: 2, skill: "LOGIC", emoji: "🦉", traitCost: 1, trait: "Ignore 1 skill requirement.", desc: "Bypasses firewalls." }
+  ],
+  items: [
+    { id: "i_loop", name: "for...of Loop", cost: 1, emoji: "🔁", effect: "DOUBLE_VELOCITY", desc: "Doubles 1 colleague's Velocity." },
+    { id: "i_catch", name: "try / catch", cost: 1, emoji: "🦺", effect: "SHIELD_FAIL", desc: "Shields project from penalties." },
+    { id: "i_async", name: "Async Worker", cost: 2, emoji: "⏱️", effect: "PREVENT_EXHAUST", desc: "Colleague does not exhaust." },
+    { id: "i_refactor", name: "Hotfix Patch", cost: 1, emoji: "🩹", effect: "LOWER_COMPLEXITY", desc: "Lowers ticket Complexity by 2." },
+    { id: "i_espresso", name: "Espresso Rig", cost: 2, emoji: "☕", effect: "COFFEE_STASH", desc: "Gain 1 Coffee Cup immediately." }
+  ],
+  projects: [
+    { id: "p_logo", name: "CSS Logo Refactor", complexity: 3, reqSkill: "DESIGN", reward: 1, penalty: "No penalty.", emoji: "🎨", type: "PROJECT" },
+    { id: "p_store", name: "Storefront Endpoint", complexity: 4, reqSkill: "SYSTEMS", reward: 1, penalty: "Lose 1 Coffee.", emoji: "🧁", type: "PROJECT" },
+    { id: "p_shop", name: "Checkout Pipeline", complexity: 6, reqSkill: "SYSTEMS", reward: 2, penalty: "Lose 1 Coffee.", emoji: "🛍️", type: "PROJECT" },
+    { id: "p_auth", name: "OAuth Gateway", complexity: 7, reqSkill: "LOGIC", reward: 3, penalty: "Lose 1 Kudos.", emoji: "🔐", type: "PROJECT" },
+    { id: "sp_bank", name: "Legacy Migration", complexity: 9, reqSkill: "SYSTEMS_LOGIC", reward: 5, penalty: "Discard 1 Active Colleague!", emoji: "🏛️", type: "SUPER_PROJECT" },
+    { id: "sp_cloud", name: "Cloud Crash", complexity: 10, reqSkill: "FULL_STACK", reward: 6, penalty: "Lose 2 Kudos!", emoji: "⚡", type: "SUPER_PROJECT" }
+  ]
+};
+
+const state = {
+  mode: 'IDLE', // IDLE, TARGET_REST, TARGET_ITEM, TARGET_DISCARD
+  pendingItem: null,
+  activeItemEffects: [],
+  players: [
+    { score: 0, energy: 3, coffee: 0, hand: [], office: [] },
+    { score: 0, energy: 3, coffee: 0, hand: [], office: [] }
+  ],
+  market: [],
+  projects: [],
+  turn: 1
+};
+
+const clone = (obj) => JSON.parse(JSON.stringify(obj));
+const randItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+function log(msg, type = "normal") {
+  const logBox = document.getElementById("log-content");
+  const d = new Date();
+  const time = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+  
+  let entryClass = "log-entry";
+  if (type === "turn") entryClass += " turn";
+  if (type === "alert") entryClass += " alert";
+  if (type === "success") entryClass += " success";
+
+  const entry = document.createElement("div");
+  entry.className = entryClass;
+  entry.innerHTML = `<span style="color:#64748b;">[${time}]</span> ${msg}`;
+  logBox.appendChild(entry);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function startGame() {
+  document.getElementById("splash-screen").style.display = "none";
+  
+  // Starting Hand
+  state.players[0].hand = [clone(DB.colleagues[0]), clone(DB.colleagues[1]), clone(DB.items[0])];
+  state.players[1].hand = [clone(DB.colleagues[0]), clone(DB.colleagues[1])];
+  
+  // Market
+  state.market = [clone(DB.colleagues[2]), clone(DB.colleagues[3]), clone(DB.items[1]), clone(DB.items[2])];
+  
+  // Projects
+  state.projects = [clone(DB.projects[0]), clone(DB.projects[1]), clone(DB.projects[4])];
+
+  log(`Sprint 1 Initiated. Player Turn.`, "turn");
+  render();
+}
+
+/* ==========================================================================
+   RENDERER
+   ========================================================================== */
+function render() {
+  const p0 = state.players[0];
+  
+  // Update HUD
+  document.getElementById("ui-score").innerText = p0.score;
+  document.getElementById("ui-energy").innerText = p0.energy;
+  document.getElementById("ui-coffee").innerText = p0.coffee;
+  document.getElementById("hand-count").innerText = p0.hand.length;
+  document.getElementById("player-count").innerText = p0.office.length;
+  document.getElementById("ai-count").innerText = state.players[1].office.length;
+
+  // Banner Logic
+  const banner = document.getElementById("instruction-banner");
+  if (state.mode === 'TARGET_REST') { banner.style.display = 'flex'; banner.innerText = "⚡ SELECT AN EXHAUSTED COLLEAGUE TO REST"; document.body.className = 'targeting-mode'; }
+  else if (state.mode === 'TARGET_DISCARD') { banner.style.display = 'flex'; banner.innerText = "🔥 PENALTY: SELECT A COLLEAGUE TO DISCARD"; document.body.className = 'targeting-mode'; }
+  else if (state.mode === 'TARGET_ITEM') { banner.style.display = 'flex'; banner.innerText = `🎯 SELECT TARGET FOR ${state.pendingItem.name.toUpperCase()}`; document.body.className = 'targeting-mode'; }
+  else { banner.style.display = 'none'; document.body.className = ''; }
+
+  // 1. Projects
+  document.getElementById("projects-container").innerHTML = state.projects.map((p, i) => {
+    let classes = `card ${p.type === 'SUPER_PROJECT' ? 'super-project' : ''}`;
+    if (state.mode === 'TARGET_ITEM' && ['LOWER_COMPLEXITY', 'SHIELD_FAIL'].includes(state.pendingItem.effect)) classes += ' target-valid';
+    
+    return `
+    <div class="${classes}" onclick="handleCardClick('PROJECT', ${i})">
+      <div class="card-header">
+        <span style="font-size:1.2rem;">${p.emoji}</span>
+        <span style="font-size:0.55rem; color:${p.type === 'SUPER_PROJECT' ? '#ef4444' : '#f59e0b'}; font-weight:800;">${p.type === 'SUPER_PROJECT' ? 'SUPER' : 'TICKET'}</span>
+      </div>
+      <div class="card-title">${p.name}</div>
+      <div style="font-size:0.6rem; color:#94a3b8; margin-top:2px;">Req: <strong>${p.reqSkill}</strong></div>
+      <div class="card-footer"><span>${p.complexity} SP</span><span style="color:var(--gold);">⭐ +${p.reward}</span></div>
+    </div>`;
+  }).join('');
+
+  // 2. Market
+  document.getElementById("market-container").innerHTML = state.market.map((c, i) => renderCardHTML(c, 'MARKET', i)).join('');
+
+  // 3. Offices
+  document.getElementById("player-office-container").innerHTML = p0.office.map((c, i) => renderCardHTML(c, 'OFFICE', i)).join('');
+  document.getElementById("ai-office-container").innerHTML = state.players[1].office.map(c => `
+    <div class="card ${c.exhausted ? 'exhausted' : ''}">
+      <div class="card-header"><span style="font-size:1.2rem;">${c.emoji}</span></div>
+      <div class="card-title">${c.name}</div>
+      <div class="card-footer"><span>+${c.velocity} SP</span></div>
+    </div>`).join('');
+
+  // 4. Hand
+  document.getElementById("player-hand-container").innerHTML = p0.hand.map((c, i) => renderCardHTML(c, 'HAND', i)).join('');
+}
+
+function renderCardHTML(card, context, index) {
+  let classes = "card";
+  if (card.exhausted) classes += " exhausted";
+  if (card.committed) classes += " committed";
+
+  if (state.mode === 'TARGET_REST' && context === 'OFFICE' && card.exhausted) classes += " target-valid";
+  if (state.mode === 'TARGET_DISCARD' && context === 'OFFICE') classes += " target-valid";
+  if (state.mode === 'TARGET_ITEM' && context === 'OFFICE' && ['DOUBLE_VELOCITY', 'PREVENT_EXHAUST'].includes(state.pendingItem.effect)) classes += " target-valid";
+
+  let tag = card.skill ? `<span class="tag tag-${card.skill.toLowerCase()}">${card.skill}</span>` : `<span style="font-size:0.6rem; color:#c084fc; font-weight:800;">ITEM</span>`;
+  let footer = '';
+  
+  if (context === 'MARKET') footer = `<span>⚡ ${card.cost} Action</span>`;
+  else if (context === 'HAND') footer = `<span style="color:var(--p1);">Play / Use ➔</span>`;
+  else if (context === 'OFFICE') footer = `<span style="color:var(--p1);">+${card.velocity} SP</span><span style="color:#94a3b8;">${card.exhausted ? '😴' : (card.committed ? '✅' : 'Ready')}</span>`;
+
+  return `
+    <div class="${classes}" onclick="handleCardClick('${context}', ${index})">
+      <div class="card-header"><span style="font-size:1.2rem;">${card.emoji}</span>${tag}</div>
+      <div class="card-title">${card.name}</div>
+      <div class="card-footer">${footer}</div>
+    </div>
+  `;
+}
+
+/* ==========================================================================
+   INTERACTION & MODALS
+   ========================================================================== */
+function handleCardClick(zone, index) {
+  if (state.mode !== 'IDLE') { handleTargetingClick(zone, index); return; }
+  
+  const p0 = state.players[0];
+  const m = document.getElementById("modal-content");
+  let card, buttonsHTML = "";
+
+  if (zone === 'MARKET') {
+    card = state.market[index];
+    buttonsHTML = `<button class="modal-btn btn-primary" onclick="buyCard(${index})">Recruit to Hand (Costs ⚡ ${card.cost})</button>`;
+  } else if (zone === 'HAND') {
+    card = p0.hand[index];
+    if (card.type === 'COLLEAGUE') {
+      buttonsHTML = `<button class="modal-btn btn-primary" onclick="deployColleague(${index})">Deploy to Office (FREE - 0 ⚡)</button>`;
+    } else {
+      if (card.effect === 'COFFEE_STASH') buttonsHTML = `<button class="modal-btn btn-primary" onclick="playEspresso(${index})">Gain 1 Coffee Token (FREE)</button>`;
+      else buttonsHTML = `<button class="modal-btn btn-alt" onclick="startItemTargeting(${index})">Arm Construct (Select Target)</button>`;
+    }
+  } else if (zone === 'OFFICE') {
+    card = p0.office[index];
+    if (card.exhausted) { alert("Colleague is exhausted! Rest them or use Coffee."); return; }
+    if (card.committed) {
+      buttonsHTML = `<button class="modal-btn btn-cancel" onclick="uncommit(${index})">Undo Commitment</button>`;
+    } else {
+      buttonsHTML = `
+        <button class="modal-btn btn-primary" onclick="commitColleague(${index}, 'VELOCITY')">Basic Attack: +${card.velocity} SP (FREE)</button>
+        <button class="modal-btn btn-alt" onclick="commitColleague(${index}, 'TRAIT')">Use Trait: ${card.trait} (Costs ⚡ ${card.traitCost})</button>`;
+    }
+  } else if (zone === 'PROJECT') {
+    card = state.projects[index];
+    const assigned = p0.office.filter(w => w.committed).length;
+    buttonsHTML = assigned > 0 
+      ? `<button class="modal-btn btn-primary" onclick="deliverProject(${index})">Execute Delivery (${assigned} Staff Assigned)</button>`
+      : `<div style="text-align:center; color:var(--ai); font-size:0.85rem; font-weight:800;">Assign staff from your office first!</div>`;
+  }
+
+  m.innerHTML = `
+    <div class="modal-art">${card.emoji}</div>
+    <div style="text-align:center;">
+      <h2 style="margin:0; font-size:1.4rem; color:var(--p1);">${card.name}</h2>
+      <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">${card.type || 'PROJECT'}</div>
+    </div>
+    <p style="font-size:0.85rem; color:#cbd5e1; line-height:1.4; text-align:center;">${card.desc || card.reqSkill}</p>
+    <div style="margin-top:10px;">${buttonsHTML}</div>
+    <button class="modal-btn btn-cancel" onclick="cancelAction()">Cancel</button>
+  `;
+  document.getElementById("modal-backdrop").style.display = "flex";
+}
+
+/* ==========================================================================
+   TARGETING & ACTIONS
+   ========================================================================== */
+function handleTargetingClick(zone, index) {
+  const p0 = state.players[0];
+
+  if (state.mode === 'TARGET_REST') {
+    if (zone !== 'OFFICE') return;
+    const worker = p0.office[index];
+    if (!worker.exhausted) return;
+    worker.exhausted = false;
+    log(`⚡ Rested **${worker.name}**.`);
+    resetMode();
+  } 
+  else if (state.mode === 'TARGET_DISCARD') {
+    if (zone !== 'OFFICE') return;
+    const worker = p0.office.splice(index, 1)[0];
+    log(`🔥 Penalty: **${worker.name}** was discarded!`, "alert");
+    resetMode();
+  }
+  else if (state.mode === 'TARGET_ITEM') {
+    const effect = state.pendingItem.effect;
+    if (['DOUBLE_VELOCITY', 'PREVENT_EXHAUST'].includes(effect)) {
+      if (zone !== 'OFFICE') return;
+      state.activeItemEffects.push({ targetIndex: index, effect: effect });
+      log(`🎯 Armed **${state.pendingItem.name}** on **${p0.office[index].name}**.`);
+    } else {
+      if (zone !== 'PROJECT') return;
+      state.activeItemEffects.push({ targetProjectIdx: index, effect: effect });
+      log(`🎯 Armed **${state.pendingItem.name}** on **${state.projects[index].name}**.`);
+    }
+    p0.hand = p0.hand.filter(c => c !== state.pendingItem);
+    resetMode();
+  }
+}
+
+function cancelAction() {
+  if (state.mode === 'TARGET_DISCARD') { alert("You must select someone to discard!"); return; }
+  document.getElementById("modal-backdrop").style.display = "none";
+  resetMode();
+}
+
+function resetMode() {
+  state.mode = 'IDLE'; state.pendingItem = null;
+  document.getElementById("modal-backdrop").style.display = "none";
+  render();
+}
+
+/* --- THE COFFEE / REST FIX --- */
+function startRestAction() {
+  const p0 = state.players[0];
+  if (p0.energy < 1) { alert("You need ⚡ 1 Energy to rest a colleague."); return; }
+  const exhausted = p0.office.filter(w => w.exhausted);
+  if (exhausted.length === 0) { alert("No colleagues are exhausted!"); return; }
+  
+  p0.energy -= 1;
+  state.mode = 'TARGET_REST';
+  render();
+}
+
+function useCoffeeRound() {
+  const p0 = state.players[0];
+  if (p0.coffee < 1) { alert("No Coffee Tokens! Earn them via items or track milestones."); return; }
+  const exhausted = p0.office.filter(w => w.exhausted);
+  if (exhausted.length === 0) { alert("No colleagues are exhausted!"); return; }
+
+  p0.coffee -= 1;
+  p0.office.forEach(w => w.exhausted = false);
+  log(`☕ Mass Revive! All ${exhausted.length} staff are ready.`, "success");
+  render();
+}
+
+/* --- PLAY ACTIONS --- */
+function buyCard(index) {
+  const p0 = state.players[0];
+  const card = state.market[index];
+  if (p0.hand.length >= 6) { alert("Hand full!"); return; }
+  if (p0.energy < card.cost) { alert(`Requires ⚡ ${card.cost} Actions.`); return; }
+  
+  p0.energy -= card.cost;
+  p0.hand.push(clone(card));
+  state.market[index] = clone(randItem(DB.colleagues)); // Simplified market refill
+  log(`Drafted **${card.name}**.`);
+  cancelAction();
+}
+
+function deployColleague(index) {
+  const p0 = state.players[0];
+  if (p0.office.length >= 6) { alert("Office full!"); return; }
+  const card = p0.hand.splice(index, 1)[0];
+  card.exhausted = false; card.committed = false;
+  p0.office.push(card);
+  log(`Deployed **${card.name}** (FREE).`);
+  cancelAction();
+}
+
+function playEspresso(index) {
+  state.players[0].coffee += 1;
+  state.players[0].hand.splice(index, 1);
+  log("☕ Played Espresso Rig. Gained 1 Coffee Token.");
+  cancelAction();
+}
+
+function startItemTargeting(index) {
+  state.pendingItem = state.players[0].hand[index];
+  state.mode = 'TARGET_ITEM';
+  cancelAction();
+}
+
+function commitColleague(index, mode) {
+  const p0 = state.players[0];
+  const card = p0.office[index];
+  if (mode === 'TRAIT' && p0.energy < card.traitCost) { alert(`Requires ⚡ ${card.traitCost}`); return; }
+  if (mode === 'TRAIT') p0.energy -= card.traitCost;
+  
+  card.committed = mode;
+  log(`Assigned **${card.name}** (${mode}).`);
+  cancelAction();
+}
+
+function uncommit(index) {
+  state.players[0].office[index].committed = false;
+  cancelAction();
+}
+
+/* ==========================================================================
+   DELIVERY
+   ========================================================================== */
+function deliverProject(index) {
+  const p0 = state.players[0];
+  const proj = state.projects[index];
+  const staff = p0.office.filter(w => w.committed);
+
+  // Skill check logic simplified for brevity (auto-pass if Hacker used)
+  const bypass = staff.some(w => w.committed === 'TRAIT' && w.id === 'c_hacker');
+  const skills = staff.map(w => w.skill);
+  let hasSkill = bypass || skills.includes(proj.reqSkill) || (proj.reqSkill === 'SYSTEMS_LOGIC' && skills.includes('SYSTEMS') && skills.includes('LOGIC')) || (proj.reqSkill === 'FULL_STACK' && skills.length >= 3);
+
+  if (!hasSkill) { alert(`Lacking skill: ${proj.reqSkill}`); cancelAction(); return; }
+
+  let totalVel = 0; let reroll = false; let shield = false;
+  let compMods = 0; let preventExhaustIds = [];
+
+  staff.forEach((w, i) => {
+    let vel = w.velocity;
+    state.activeItemEffects.forEach(eff => {
+      if (eff.effect === 'DOUBLE_VELOCITY' && eff.targetIndex === p0.office.indexOf(w)) vel *= 2;
+      if (eff.effect === 'PREVENT_EXHAUST' && eff.targetIndex === p0.office.indexOf(w)) preventExhaustIds.push(w.id);
+    });
+    if (w.committed === 'VELOCITY') totalVel += vel;
+    if (w.committed === 'TRAIT' && w.id === 'c_qa') reroll = true;
+    if (w.committed === 'TRAIT' && w.id === 'c_apprentice') totalVel += 2;
+  });
+
+  state.activeItemEffects.forEach(eff => {
+    if (eff.effect === 'LOWER_COMPLEXITY' && eff.targetProjectIdx === index) compMods += 2;
+    if (eff.effect === 'SHIELD_FAIL' && eff.targetProjectIdx === index) shield = true;
+  });
+
+  let targetComp = Math.max(1, proj.complexity - compMods);
+  let roll = Math.floor(Math.random()*4)+1;
+  if (reroll && roll <= 2) roll = Math.floor(Math.random()*4)+1;
+  const total = totalVel + roll;
+
+  log(`Delivery Attempt: Vel(${totalVel}) + Spark(${roll}) = ${total} vs ${targetComp}`);
+
+  staff.forEach(w => { if (!preventExhaustIds.includes(w.id)) w.exhausted = true; w.committed = false; });
+  state.activeItemEffects = [];
+
+  if (total >= targetComp) {
+    p0.score += proj.reward;
+    confetti({ particleCount: 100, spread: 70 });
+    log(`🎉 Shipped **${proj.name}**! (+${proj.reward} ⭐)`, "success");
+    state.projects[index] = clone(randItem(DB.projects));
+    if (p0.score >= 10) setTimeout(() => alert("🏆 YOU WIN!"), 500);
+  } else {
+    if (shield) log("🦺 try/catch prevented failure penalty!");
+    else {
+      log(`🔥 Delivery Failed! Penalty: ${proj.penalty}`, "alert");
+      if (proj.penalty.includes("Coffee")) p0.coffee = Math.max(0, p0.coffee - 1);
+      else if (proj.penalty.includes("Kudos")) p0.score = Math.max(0, p0.score - 2);
+      else if (proj.penalty.includes("Discard") && p0.office.length > 0) {
+        state.mode = 'TARGET_DISCARD';
+      }
+    }
+  }
+  cancelAction(); // resyncs UI
+}
+
+function endTurn() {
+  state.turn++;
+  state.players[0].energy = 3;
+  state.players[0].office.forEach(w => w.committed = false);
+  log(`--- SPRINT ${state.turn} ---`, "turn");
+  
+  // AI Sim
+  const ai = state.players[1];
+  ai.score += Math.floor(Math.random() * 2);
+  log("Rival AI processed backlog.");
+  
+  render();
+}
+</script>
+</body>
+</html>
